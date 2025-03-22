@@ -12,6 +12,8 @@ on:
           - File
           - Windows         
           - 3wlh.github.io
+          - OpenWrt
+          - Script
           - Yi_Source
           - Source
 

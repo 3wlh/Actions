@@ -1,4 +1,4 @@
-name: GitHUB Actions Erase Commits
+name: Actions Erase Commits
 on:
   repository_dispatch:
   workflow_dispatch:      

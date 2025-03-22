@@ -49,6 +49,7 @@ jobs:
         # 创建一个新的分支
         git checkout --orphan latest_branch
         # 添加所有文件
+        # git add -A > /dev/unll
         git add -A
         # 提交更改
         git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"

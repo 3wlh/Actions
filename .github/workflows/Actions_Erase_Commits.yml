@@ -37,7 +37,8 @@ jobs:
       run : |
         test -d "GitHub" || mkdir -p "GitHub" 
         cd GitHub && ls
-        git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/${{ inputs.repos }}
+        git clone https://gitclone.com/github.com/3wlh/${{ inputs.repos }}.git
+        # git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/${{ inputs.repos }}
         cd ${{ inputs.repos }} && ls
     
     - name: Git Erase Commits

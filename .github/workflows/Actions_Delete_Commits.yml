@@ -1,4 +1,4 @@
-name: Actions Erase Commits
+name: Actions Delete Commits
 on:
   repository_dispatch:
   workflow_dispatch:      
@@ -10,15 +10,14 @@ on:
         type: choice
         options:
           - File
-          - Windows
-          - Source
-          - Yi_Source
+          - Windows         
           - 3wlh.github.io
-          
+          - Yi_Source
+          - Source
 
 jobs:
   merge:
-    name: Erase ${{ inputs.repos }}
+    name: Delete ${{ inputs.repos }} Commits
     if: github.event.repository.owner.id == github.event.sender.id || ! github.event.sender.id || github.event.sender.id == '119362912'
     runs-on: ubuntu-latest
     steps:

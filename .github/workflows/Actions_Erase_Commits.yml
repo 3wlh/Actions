@@ -37,7 +37,6 @@ jobs:
       run : |
         test -d "GitHub" || mkdir -p "GitHub" 
         cd GitHub && ls
-        # git clone https://gitclone.com/github.com/3wlh/${{ inputs.repos }}.git
         git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/${{ inputs.repos }}
         cd ${{ inputs.repos }} && ls
     
@@ -65,7 +64,6 @@ jobs:
     
     - name: Git Check Repositories
       run : |
-        echo $(git log --pretty=oneline)
-        echo $(git branch -a)
-        echo $(git tag)
-        echo $(git ls-remote --tags)
+        git log --pretty=oneline
+        git branch -a
+        git ls-remote --tags

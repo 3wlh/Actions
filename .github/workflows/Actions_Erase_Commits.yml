@@ -16,6 +16,7 @@ on:
           - Script
           - Yi_Source
           - Source
+          - Actions-Build_ImmortalWrt
 
 jobs:
   merge:

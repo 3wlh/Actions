@@ -1,0 +1,68 @@
+name: Call SDK Docker
+
+on:
+  workflow_call:
+    inputs:
+      runs:
+        type: boolean
+      commits:
+        type: boolean
+
+permissions:
+  contents: write
+    
+jobs:
+  jods_Actions:
+    name: Actions
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Repository  Remove Workflow Runs
+      if: (inputs.runs == true)
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ github.repository }}
+        delete_workflow_pattern: Pages|pages
+        #retain_days: 1
+        keep_minimum_runs: 0
+        use_daily_retention: true
+      
+    - name: Repository Remove Commits
+      if : (inputs.commits == true)
+      run: |
+        # 获取当前默认分支名称（如 main/master）
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        echo "Current branch: $branch"
+
+        # 配置 Git 用户身份
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # 创建孤儿分支（无任何提交历史）
+        git checkout --orphan latest_branch
+
+        # 添加所有文件到暂存区
+        git add -A
+
+        # 提交更改
+        git commit -m "${COMMIT_MESSAGE:-Reset commit history} - $(date +%Y-%m-%d\ %H:%M:%S)"
+
+        # 强制删除原分支（-D 强制删除，避免分支未合并的提示）
+        git branch -d ${branch}
+
+        # 将新分支重命名为原分支名
+        git branch -m ${branch}
+
+        # 清理Git仓库（优化空间，删除无用对象）
+        git gc --prune=now --aggressive
+
+        # 强制推送到远程仓库（需确保分支无保护规则）
+        git push --force origin ${branch}
+
+        # 重新关联本地分支与远程分支
+        git branch --set-upstream-to=origin/${branch} ${branch}

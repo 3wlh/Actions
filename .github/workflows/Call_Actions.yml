@@ -1,4 +1,4 @@
-name: Call Actions
+name: Call Actions Repository Cleanup
 
 on:
   workflow_call:
@@ -34,7 +34,7 @@ jobs:
           #retain_days: 1
           keep_minimum_runs: 0
           use_daily_retention: true
-      
+
       - name: Repository  Remove Workflow Runs
         if: (inputs.manual == true)
         uses: Mattraks/delete-workflow-runs@main
@@ -44,7 +44,7 @@ jobs:
           #retain_days: 1
           keep_minimum_runs: 0
           use_daily_retention: true
-      
+
       - name: Repository Remove Commits
         if: (inputs.commits == true)
         run: |

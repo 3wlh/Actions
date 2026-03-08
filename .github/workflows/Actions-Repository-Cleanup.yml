@@ -1,4 +1,4 @@
-name: Actions Repository Auto Cleanup
+name: Actions Repository Cleanup
 
 on:
   workflow_dispatch:

@@ -12,17 +12,17 @@ GitHub Action 可复用工作流，用于删除工作流运行记录和重置提
 ## 使用方法
 
 ```yaml
-name: Actions Repository Auto Cleanup
+name: Actions Repository Cleanup
 
 on:
   push:
     branches: [main, master]
   workflow_dispatch:
     inputs:
-      runs:
+      manual:
         description: "删除工作流运行"
         type: boolean
-        default: false
+        default: true
       commits:
         description: "重置提交历史"
         type: boolean
@@ -33,7 +33,7 @@ jobs:
     uses: 3wlh/Actions/.github/workflows/Call_Actions.yml@main
     with:
       auto: ${{ true }}
-      manual: ${{ inputs.runs || false }}
+      manual: ${{ inputs.manual || false }}
       commits: ${{ inputs.commits || false }}
 ```
 

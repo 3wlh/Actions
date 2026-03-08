@@ -3,8 +3,9 @@ name: Call Actions
 on:
   workflow_call:
     inputs:
-      runs:
-        default: true
+      auto:
+        type: boolean
+      manual:
         type: boolean
       commits:
         type: boolean
@@ -24,16 +25,26 @@ jobs:
           fetch-depth: 0
 
       - name: Repository  Remove Workflow Runs
-        if: (inputs.runs == true)
+        if: (inputs.auto == true && inputs.manual == false)
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          delete_workflow_pattern: Pages|pages
+          delete_workflow_pattern: Pages|pages|Actions|actions|Workflow|workflow
           #retain_days: 1
           keep_minimum_runs: 0
           use_daily_retention: true
-
+      
+      - name: Repository  Remove Workflow Runs
+        if: (inputs.manual == true)
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          #retain_days: 1
+          keep_minimum_runs: 0
+          use_daily_retention: true
+      
       - name: Repository Remove Commits
         if: (inputs.commits == true)
         run: |

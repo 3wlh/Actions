@@ -32,7 +32,8 @@ jobs:
   cleanup:
     uses: 3wlh/Actions/.github/workflows/Call_Actions.yml@main
     with:
-      runs: ${{ inputs.runs || true }}
+      auto: ${{ true }}
+      manual: ${{ inputs.runs || false }}
       commits: ${{ inputs.commits || false }}
 ```
 

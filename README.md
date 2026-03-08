@@ -22,7 +22,7 @@ on:
       runs:
         description: "删除工作流运行"
         type: boolean
-        default: true
+        default: false
       commits:
         description: "重置提交历史"
         type: boolean

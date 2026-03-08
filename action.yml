@@ -1,11 +1,6 @@
 name: "Actions Delete Commits"
 description: "Delete Commits"
 author: aparcar
-inputs:
-  token:
-    description: "GitHub token with write permission"
-    required: false
-    default: ${{ github.token }}
 runs:
   using: "composite"
   steps:
@@ -14,28 +9,27 @@ runs:
       with:
         repository: ${{ github.repository }}
         fetch-depth: 0
-        token: ${{ inputs.token }}
+        token: ${{ env.TOKEN || github.token }}
 
     - name: Git Erase Commits
       shell: bash
       run: |
-        # 配置 Git 用户身份
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-
         # 获取当前默认分支名称（如 main/master）
         branch=$(git rev-parse --abbrev-ref HEAD)
         echo "Current branch: $branch"
 
+        # 配置 Git 用户身份
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
         # 创建孤儿分支（无任何提交历史）
         git checkout --orphan latest_branch
 
-        # 添加所有文件到暂存区（屏蔽无关输出
-        # git add -A >/dev/unll
+        # 添加所有文件到暂存区
         git add -A
 
         # 提交更改
-        git commit -m "Reset commit history - $(date +%Y-%m-%d\ %H:%M:%S)"
+        git commit -m "${COMMIT_MESSAGE:-Reset commit history} - $(date +%Y-%m-%d\ %H:%M:%S)"
 
         # 强制删除原分支（-D 强制删除，避免分支未合并的提示）
         git branch -d ${branch}

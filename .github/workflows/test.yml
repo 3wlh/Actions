@@ -1,0 +1,14 @@
+name: Test Delete Commits
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  merge:
+    name: Delete Commits
+    if: github.event.repository.owner.id == github.event.sender.id || ! github.event.sender.id || github.event.sender.id == '119362912'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: 3wlh/Actions@main
+        with:
+          token: ${{ secrets.TOKEN_3WLH }}

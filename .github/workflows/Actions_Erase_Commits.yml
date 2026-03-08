@@ -1,0 +1,77 @@
+name: Actions Delete Commits
+on:
+  repository_dispatch:
+  workflow_dispatch:      
+    inputs:
+      repos:
+        description: "Select the Repositories"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - File
+          - Windows         
+          - 3wlh.github.io
+          - OpenWrt
+          - Script
+          - Yi_Source
+          - Source
+          - Actions-Build_ImmortalWrt
+          - OpenWrt_Packages
+
+jobs:
+  merge:
+    name: Delete ${{ inputs.repos }} Commits
+    if: github.event.repository.owner.id == github.event.sender.id || ! github.event.sender.id || github.event.sender.id == '119362912'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+      with:
+        fetch-depth: 0
+    
+    - name: Set Git identity
+      run : |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        sudo timedatectl set-timezone "Asia/Shanghai"
+
+    - name: Git Clone Repositories
+      run : |
+        test -d "GitHub" || mkdir -p "GitHub" 
+        cd GitHub && ls
+        git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/${{ inputs.repos }}
+        cd ${{ inputs.repos }} && ls
+    
+    - name: Git Erase Commits
+      run : |
+        test -d "GitHub/${{ inputs.repos }}" || exit 1
+        cd GitHub/${{ inputs.repos }} && ls
+        # 获取当前默认分支
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        # 创建一个新的分支
+        git checkout --orphan latest_branch
+        # 添加所有文件
+        # git add -A > /dev/unll
+        git add -A
+        # 提交更改
+        git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
+        # 删除需要替换的分支
+        git branch -d ${branch}
+        # 重命名创建的分支为删除的分支
+        git branch -m ${branch}
+        # 清理优化Git仓库
+        git gc --prune=now --aggressive
+        # 强制提交到远程仓库
+        git push --force origin ${branch}
+        # 拉取
+        git branch --set-upstream-to=origin/${branch} ${branch}
+        git pull
+    
+    - name: Git Check Repositories
+      run : |
+        test -d "GitHub/${{ inputs.repos }}" && cd GitHub/${{ inputs.repos }}
+        git rm -rf --cached . >/tmp/delete.log
+        git log --pretty=oneline
+        git branch -a
+        echo -e "\n\e[92mDirectory size: $(du -hs | tr -d "\t.")"

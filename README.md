@@ -32,8 +32,8 @@ jobs:
   cleanup:
     uses: 3wlh/Actions/.github/workflows/Call_Actions.yml@main
     with:
-      runs: ${{ inputs.runs }}
-      commits: ${{ inputs.commits }}
+      runs: ${{ inputs.runs || true }}
+      commits: ${{ inputs.commits || false }}
 ```
 
 ## 输入参数

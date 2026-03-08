@@ -67,4 +67,4 @@ jobs:
           git push --force origin ${branch}
 
           echo "✅ 重新关联本地分支与远程分支"
-          git branch --set-upstream-to=origin/${branch} ${branch}
+          # git branch --set-upstream-to=origin/${branch} ${branch}

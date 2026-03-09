@@ -60,7 +60,7 @@ jobs:
           git checkout --orphan latest_branch
 
           echo "✅ 添加所有文件到暂存区"
-          git add -A >/
+          git add -A >/dev/null 2>&1
 
           echo "✅ 提交更改"
           git commit -m "${COMMIT_MESSAGE:-Reset commit history} - $(date +%Y-%m-%d\ %H:%M:%S)"

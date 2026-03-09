@@ -24,11 +24,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Repository  Remove Workflow Runs
+      - name: Repository Remove Workflow Runs
         if: (inputs.auto == true && inputs.manual == false)
         uses: Mattraks/delete-workflow-runs@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
           repository: ${{ github.repository }}
           delete_workflow_pattern: Pages|pages|Actions|actions|Workflow|workflow
           #retain_days: 1
@@ -39,7 +39,7 @@ jobs:
         if: (inputs.manual == true)
         uses: Mattraks/delete-workflow-runs@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
           repository: ${{ github.repository }}
           #retain_days: 1
           keep_minimum_runs: 0
@@ -79,3 +79,15 @@ jobs:
 
           echo "✅ 重新关联本地分支与远程分支"
           # git branch --set-upstream-to=origin/${branch} ${branch}
+
+      - name: Repository Remove ${{ github.run_id }}
+        continue-on-error: true
+        run: |
+          # 构造API请求URL（自动适配仓库所有者和仓库名）
+          API_URL="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          # 发送DELETE请求删除运行记录
+          curl -X DELETE \
+            -H "Authorization: token ${{ github.token }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            $API_URL

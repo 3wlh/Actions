@@ -84,7 +84,7 @@ runs:
         # 检查目录大小（判断是否已缓存）
         dir_size=$(du -s $(pwd) | awk '{ print $1 }')
         if [[ $dir_size -lt 10240 ]]; then
-          echo "::notice::目录大小 ${dir_size}KB < 10MB，开始下载OpenWrt ToolChain"
+          echo "::notice::✅ 目录大小 ${dir_size}KB < 10MB，开始下载OpenWrt ToolChain"
           
           # 检查URL是否有效
           http_code=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${url}")

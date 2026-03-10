@@ -159,5 +159,5 @@ runs:
       shell: bash
       run: |
         # 输出G++和GCC版本
-        echo "::debug::✅ G++版本：$(g++ --version | head -n 1)"
-        echo "::debug::✅ GCC版本：$(gcc --version | head -n 1)"
+        echo ":notice:✅ G++版本：$(g++ --version | head -n 1)"
+        echo ":notice:✅ GCC版本：$(gcc --version | head -n 1)"

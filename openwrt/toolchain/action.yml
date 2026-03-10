@@ -5,17 +5,16 @@ inputs:
   arch:
     description: 'OpenWrt架构（aarch64_generic/x86_64）'
     type: string
-    required: true  # 架构是必传参数，建议显式声明
+    required: true
   version:
-    description: 'OpenWrt版本（如23.05.3）'
+    description: 'OpenWrt版本（如24.10.0）'
     type: string
-    required: true  # 版本必传
+    required: true
   path:
     description: '工具链安装目录'
     type: string
-    default: ${{ github.workspace }}  # 给默认值，避免空值
+    default: ${{ github.workspace }}
 
-# 声明复合动作的输出（关键：给调用方用的变量）
 outputs:
   status:
     description: '工具链安装状态（success/failed）'
@@ -58,6 +57,7 @@ runs:
         version=$([[ $version =~ ^[0-9]+\.[0-9]+$ ]] && echo "${version}.0" || echo "$version")
         
         # 内部环境变量：步骤间共享
+        test -d "${{ inputs.path }}" || mkdir -pm "${{ inputs.path }}"
         echo "sdk-url=$url/$version/targets/$sdk-path" >> $GITHUB_ENV
         echo "sdk-name=$sdk-name" >> $GITHUB_ENV
         echo "::notice::✅ 初始化完成，SDK地址：$url/$version/targets/$sdk-path"

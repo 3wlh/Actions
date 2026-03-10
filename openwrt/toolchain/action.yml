@@ -1,9 +1,8 @@
-# 复合动作的元信息
 name: "OpenWrt ToolChain"
 description: "安装OpenWrt SDK,(g++|gcc|c|cpp|ld|as)"
 inputs:
   arch:
-    description: "OpenWrt架构（aarch64_generic/x86_64）"
+    description: "OpenWrt架构（aarch64_generic|x86_64）"
     type: string
     required: true
   version:
@@ -40,12 +39,12 @@ runs:
         # 架构匹配逻辑
         case $arch in
           aarch64_generic)
-            sdk_path="layerscape/armv8_64b"
-            sdk_name="-toolchain-.*-armv8_64b_"
+            toolchain_path="layerscape/armv8_64b"
+            toolchain_name="-toolchain-.*-armv8_64b_"
             ;;
           x86_64)
-            sdk_path="x86/64"
-            sdk_name="-toolchain-.*-x86-64_"
+            toolchain_path="x86/64"
+            toolchain_name="-toolchain-.*-x86-64_"
             ;;
           *)
             echo "::error::❌ 不支持的架构：${arch}，仅支持aarch64_generic/x86_64"
@@ -58,9 +57,9 @@ runs:
 
         # 内部环境变量：步骤间共享
         test -d "${{ inputs.path }}" || mkdir -pm 755 "${{ inputs.path }}"
-        echo "sdk_url=$url/$version/targets/$sdk_path" >> $GITHUB_ENV
-        echo "sdk_name=$sdk_name" >> $GITHUB_ENV
-        echo "::notice::✅ 初始化完成，SDK地址：$url/$version/targets/$sdk_path"
+        echo "toolchain_url=$url/$version/targets/$toolchain_path" >> $GITHUB_ENV
+        echo "toolchain_name=$toolchain_name" >> $GITHUB_ENV
+        echo "::notice::✅ 初始化完成，ToolChain地址：$url/$version/targets/$toolchain_path"
 
     - name: Setup Cache
       uses: actions/cache@v4
@@ -74,8 +73,8 @@ runs:
       id: download-toolchain
       shell: bash
       env:
-        url: ${{ env.sdk_url }}
-        name: ${{ env.sdk_name }}
+        url: ${{ env.toolchain_url }}
+        name: ${{ env.toolchain_name }}
       working-directory: ${{ inputs.path }}
       run: |
         # 下载安装OpenWrt ToolChain
@@ -89,26 +88,26 @@ runs:
           # 检查URL是否有效
           http_code=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${url}")
           if [[ $http_code -ge 400 ]]; then
-            echo "::error::❌ SDK地址无法访问，HTTP状态码：${http_code}，地址：${url}"
+            echo "::error::❌ ToolChain地址无法访问，HTTP状态码：${http_code}，地址：${url}"
             exit 1
           fi
           
           # 获取SHA256和文件名
           text="$(wget -qO- "${url}/sha256sums" | grep -- "${name}" | sed 's/*//g')"
           if [[ -z "${text}" ]]; then
-            echo "::error::❌ 未找到匹配的SDK文件，架构：${{ inputs.arch }}，版本：${{ inputs.version }}"
+            echo "::error::❌ 未找到匹配的ToolChain文件，架构：${{ inputs.arch }}，版本：${{ inputs.version }}"
             exit 1
           fi
           
           file="$(echo ${text} | cut -d' ' -f2 | sed 's/*//g')"
           verify="$(echo ${text} | cut -d' ' -f1)"
           if [[ -z "${file}" || -z "${verify}" ]]; then
-            echo "::error::❌ 无法解析SDK文件名或校验值，原始数据：${text}"
+            echo "::error::❌ 无法解析ToolChain文件名或校验值，原始数据：${text}"
             exit 1
           fi
           
           # 下载文件
-          echo "::notice::✅ 开始下载SDK文件：${file}"
+          echo "::notice::✅ 开始下载ToolChain文件：${file}"
           if ! wget -qO "${file}" "${url}/${file}"; then
             echo "::error::❌ 文件下载失败：${url}/${file}"
             exit 1
@@ -123,13 +122,13 @@ runs:
           echo "::notice::✅ SHA256校验通过"
           
           # 解压文件
-          echo "::notice::✅ 开始解压SDK文件：${file}"
+          echo "::notice::✅ 开始解压ToolChain文件：${file}"
           if ! tar -I zstd -xf "${file}" --strip-components=1; then
             echo "::error::❌ 文件解压失败"
             exit 1
           fi
           rm -rf ${file}
-          echo "::notice::✅ SDK解压完成，已删除压缩包"
+          echo "::notice::✅ ToolChain解压完成，已删除压缩包"
         else
           echo "::notice::✅ 缓存命中，跳过下载，直接使用缓存的工具链"
         fi
@@ -147,9 +146,9 @@ runs:
           echo "::notice::🔗 已创建软链接：/usr/bin/${file} -> ${link_path}"
         done
         echo "::notice::✅ 开始配置环境变量"
-        sdk_bin="$(find ${{ env.PATH_CACHE }} -type l -name "*-linux-gcc" -print0 | xargs -0 dirname)"
-        sudo sed -i '$a\export PATH=$PATH:'"${Bsdk_bin}" /etc/profile
-        sudo sed -i '$a\export STAGING_DIR='"${sdk_bin%/*}" /etc/profile
+        toolchain_bin="$(find ${{ env.PATH_CACHE }} -type l -name "*-linux-gcc" -print0 | xargs -0 dirname)"
+        sudo sed -i '$a\export PATH=$PATH:'"${toolchain_bin}" /etc/profile
+        sudo sed -i '$a\export STAGING_DIR='"${toolchain_bin%/*}" /etc/profile
         source /etc/profile
         # 输出最终状态为成功
         echo "status=success" >> $GITHUB_OUTPUT

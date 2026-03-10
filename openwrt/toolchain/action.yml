@@ -146,7 +146,9 @@ runs:
           sudo ln -sf "${link_path}" "/usr/bin/${file}"
           echo "::notice::✅ 已创建软链接：/usr/bin/${file} -> ${link_path}"
         done
-        sudo sed -i '$a\export STAGING_DIR=/tmp' /etc/profile
+        sdk_bin="$(find ${{ env.PATH_CACHE }} -type l -name "*-linux-gcc" -print0 | xargs -0 dirname)"
+        sudo sed -i '$a\export PATH=$PATH:'"${Bsdk_bin}" /etc/profile
+        sudo sed -i '$a\export STAGING_DIR='"${sdk_bin%/*}" /etc/profile
         # 输出最终状态为成功
         echo "status=success" >> $GITHUB_OUTPUT
         echo "::notice::✅ OpenWrt ToolChain 安装完成！"

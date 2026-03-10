@@ -1,30 +1,30 @@
 # 复合动作的元信息
-name: 'OpenWrt ToolChain'
-description: '安装OpenWrt SDK,(g++|gcc|c|cpp|ld|as)'
+name: "OpenWrt ToolChain"
+description: "安装OpenWrt SDK,(g++|gcc|c|cpp|ld|as)"
 inputs:
   arch:
-    description: 'OpenWrt架构（aarch64_generic/x86_64）'
+    description: "OpenWrt架构（aarch64_generic/x86_64）"
     type: string
     required: true
   version:
-    description: 'OpenWrt版本（如24.10.0）'
+    description: "OpenWrt版本（如24.10.0）"
     type: string
     required: true
   path:
-    description: '工具链安装目录'
+    description: "工具链安装目录"
     type: string
     default: ${{ github.workspace }}
 
 outputs:
   status:
-    description: '工具链安装状态（success/failed）'
+    description: "工具链安装状态（success/failed）"
     value: ${{ steps.download-toolchain.outputs.status }}
   toolchain-path:
-    description: '工具链实际安装路径'
-    value: ${{ inputs.path || github.workspace }}
+    description: "工具链实际安装路径"
+    value: ${{ inputs.path }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Initialize configuration
       id: init
@@ -36,7 +36,7 @@ runs:
       run: |
         # 日志输出：用GitHub官方日志级别，更醒目
         echo "::notice::✅ 开始初始化 ${arch} 架构 ${version} 版本的配置"
-        
+
         # 架构匹配逻辑
         case $arch in
           aarch64_generic)
@@ -52,10 +52,10 @@ runs:
             exit 1
             ;;
         esac
-        
+
         # 版本格式修正
         version=$([[ $version =~ ^[0-9]+\.[0-9]+$ ]] && echo "${version}.0" || echo "$version")
-        
+
         # 内部环境变量：步骤间共享
         test -d "${{ inputs.path }}" || mkdir -pm "${{ inputs.path }}"
         echo "sdk-url=$url/$version/targets/$sdk-path" >> $GITHUB_ENV
@@ -81,7 +81,7 @@ runs:
       run: |
         # 初始化输出状态为失败
         echo "status=failed" >> $GITHUB_OUTPUT
-        
+
         # 检查目录大小（判断是否已缓存）
         dir_size=$(du -s $(pwd) | awk '{ print $1 }')
         if [[ $dir_size -lt 10240 ]]; then
@@ -134,7 +134,7 @@ runs:
         else
           echo "::notice::✅ 缓存命中，跳过下载，直接使用缓存的工具链"
         fi
-        
+
         # 建立软链接
         echo "::notice::✅ 开始建立工具链软链接（g++|gcc|c|cpp|ld|as）"
         files=("g++" "gcc" "c++" "cpp" "ld" "as")
@@ -147,10 +147,10 @@ runs:
           sudo ln -sf "${link_path}" "/usr/bin/${file}"
           echo "::notice::✅ 已创建软链接：/usr/bin/${file} -> ${link_path}"
         done
-        
+
         # 输出最终状态为成功
         echo "status=success" >> $GITHUB_OUTPUT
         echo "::notice::✅ OpenWrt ToolChain 安装完成！"
-        
-        
-           
+
+
+

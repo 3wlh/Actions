@@ -124,7 +124,7 @@ runs:
           
           # 解压文件
           echo "::notice::✅ 开始解压SDK文件：${file}"
-          if ! tar -I zstd -xf "${file}" "." --strip=1; then
+          if ! tar -I zstd -xf "${file}" --strip-components=1; then
             echo "::error::❌ 文件解压失败"
             exit 1
           fi

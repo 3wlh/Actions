@@ -40,12 +40,12 @@ runs:
         # 架构匹配逻辑
         case $arch in
           aarch64_generic)
-            sdk-path="layerscape/armv8_64b"
-            sdk-name="-toolchain-.*-armv8_64b_"
+            sdk_path="layerscape/armv8_64b"
+            sdk_name="-toolchain-.*-armv8_64b_"
             ;;
           x86_64)
-            sdk-path="x86/64"
-            sdk-name="-toolchain-.*-x86-64_"
+            sdk_path="x86/64"
+            sdk_name="-toolchain-.*-x86-64_"
             ;;
           *)
             echo "::error::❌ 不支持的架构：${arch}，仅支持aarch64_generic/x86_64"
@@ -57,10 +57,10 @@ runs:
         version=$([[ $version =~ ^[0-9]+\.[0-9]+$ ]] && echo "${version}.0" || echo "$version")
 
         # 内部环境变量：步骤间共享
-        test -d "${{ inputs.path }}" || mkdir -pm "${{ inputs.path }}"
-        echo "sdk-url=$url/$version/targets/$sdk-path" >> $GITHUB_ENV
-        echo "sdk-name=$sdk-name" >> $GITHUB_ENV
-        echo "::notice::✅ 初始化完成，SDK地址：$url/$version/targets/$sdk-path"
+        test -d "${{ inputs.path }}" || mkdir -pm 755 "${{ inputs.path }}"
+        echo "sdk_url=$url/$version/targets/$sdk_path" >> $GITHUB_ENV
+        echo "sdk_name=$sdk_name" >> $GITHUB_ENV
+        echo "::notice::✅ 初始化完成，SDK地址：$url/$version/targets/$sdk_path"
 
     - name: Setup Cache
       uses: actions/cache@v4
@@ -74,8 +74,8 @@ runs:
       id: download-toolchain
       shell: bash
       env:
-        url: ${{ env.sdk-url }}
-        name: ${{ env.sdk-name }}
+        url: ${{ env.sdk_url }}
+        name: ${{ env.sdk_name }}
       working-directory: ${{ inputs.path }}
       run: |
         # 初始化输出状态为失败
@@ -115,9 +115,9 @@ runs:
           fi
           
           # 校验SHA256
-          file-sha256=$(sha256sum ${file} | awk '{print $1}')
-          if [[ "$file-sha256" != "$verify" ]]; then
-            echo "::error::❌ SHA256校验失败，本地：${file-sha256}，预期：${verify}"
+          file_sha256=$(sha256sum ${file} | awk '{print $1}')
+          if [[ "$file_sha256" != "$verify" ]]; then
+            echo "::error::❌ SHA256校验失败，本地：${file_sha256}，预期：${verify}"
             exit 1
           fi
           echo "::notice::✅ SHA256校验通过"

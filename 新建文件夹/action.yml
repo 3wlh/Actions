@@ -1,0 +1,156 @@
+# 复合动作的元信息
+name: 'OpenWrt ToolChain'
+description: '安装OpenWrt SDK,(g++|gcc|c|cpp|ld|as)'
+inputs:
+  arch:
+    description: 'OpenWrt架构（aarch64_generic/x86_64）'
+    type: string
+    required: true  # 架构是必传参数，建议显式声明
+  version:
+    description: 'OpenWrt版本（如23.05.3）'
+    type: string
+    required: true  # 版本必传
+  path:
+    description: '工具链安装目录'
+    type: string
+    default: ${{ github.workspace }}  # 给默认值，避免空值
+
+# 声明复合动作的输出（关键：给调用方用的变量）
+outputs:
+  status:
+    description: '工具链安装状态（success/failed）'
+    value: ${{ steps.download-toolchain.outputs.status }}
+  toolchain-path:
+    description: '工具链实际安装路径'
+    value: ${{ inputs.path || github.workspace }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Initialize configuration
+      id: init
+      shell: bash
+      env:
+        arch: ${{ inputs.arch }}
+        version: ${{ inputs.version }}
+        url: https://downloads.openwrt.org/releases/
+      run: |
+        # 日志输出：用GitHub官方日志级别，更醒目
+        echo "::notice::✅ 开始初始化 ${arch} 架构 ${version} 版本的配置"
+        
+        # 架构匹配逻辑
+        case $arch in
+          aarch64_generic)
+            sdk-path="layerscape/armv8_64b"
+            sdk-name="-toolchain-.*-armv8_64b_"
+            ;;
+          x86_64)
+            sdk-path="x86/64"
+            sdk-name="-toolchain-.*-x86-64_"
+            ;;
+          *)
+            echo "::error::❌ 不支持的架构：${arch}，仅支持aarch64_generic/x86_64"
+            exit 1
+            ;;
+        esac
+        
+        # 版本格式修正
+        version=$([[ $version =~ ^[0-9]+\.[0-9]+$ ]] && echo "${version}.0" || echo "$version")
+        
+        # 内部环境变量：步骤间共享
+        echo "sdk-url=$url/$version/targets/$sdk-path" >> $GITHUB_ENV
+        echo "sdk-name=$sdk-name" >> $GITHUB_ENV
+        echo "::notice::✅ 初始化完成，SDK地址：$url/$version/targets/$sdk-path"
+
+    - name: Setup Cache
+      shell: bash
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.path }}
+        key: openwrt-toolchain-${{ inputs.arch }}-${{ inputs.version }}
+        restore-keys: |
+          openwrt-toolchain-${{ inputs.arch }}-
+
+    - name: Download and Unzip ToolChain
+      id: download-toolchain
+      shell: bash
+      env:
+        url: ${{ env.sdk-url }}
+        name: ${{ env.sdk-name }}
+      working-directory: ${{ inputs.path }}
+      run: |
+        # 初始化输出状态为失败
+        echo "status=failed" >> $GITHUB_OUTPUT
+        
+        # 检查目录大小（判断是否已缓存）
+        dir_size=$(du -s $(pwd) | awk '{ print $1 }')
+        if [[ $dir_size -lt 10240 ]]; then
+          echo "::notice::目录大小 ${dir_size}KB < 10MB，开始下载OpenWrt ToolChain"
+          
+          # 检查URL是否有效
+          http_code=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${url}")
+          if [[ $http_code -ge 400 ]]; then
+            echo "::error::❌ SDK地址无法访问，HTTP状态码：${http_code}，地址：${url}"
+            exit 1
+          fi
+          
+          # 获取SHA256和文件名
+          text="$(wget -qO- "${url}/sha256sums" | grep -- "${name}" | sed 's/*//g')"
+          if [[ -z "${text}" ]]; then
+            echo "::error::❌ 未找到匹配的SDK文件，架构：${{ inputs.arch }}，版本：${{ inputs.version }}"
+            exit 1
+          fi
+          
+          file="$(echo ${text} | cut -d' ' -f2 | sed 's/*//g')"
+          verify="$(echo ${text} | cut -d' ' -f1)"
+          if [[ -z "${file}" || -z "${verify}" ]]; then
+            echo "::error::❌ 无法解析SDK文件名或校验值，原始数据：${text}"
+            exit 1
+          fi
+          
+          # 下载文件
+          echo "::notice::✅ 开始下载SDK文件：${file}"
+          if ! wget -qO "${file}" "${url}/${file}"; then
+            echo "::error::❌ 文件下载失败：${url}/${file}"
+            exit 1
+          fi
+          
+          # 校验SHA256
+          file-sha256=$(sha256sum ${file} | awk '{print $1}')
+          if [[ "$file-sha256" != "$verify" ]]; then
+            echo "::error::❌ SHA256校验失败，本地：${file-sha256}，预期：${verify}"
+            exit 1
+          fi
+          echo "::notice::✅ SHA256校验通过"
+          
+          # 解压文件
+          echo "::notice::✅ 开始解压SDK文件：${file}"
+          if ! tar -I zstd -xf "${file}" "." --strip=1; then
+            echo "::error::❌ 文件解压失败"
+            exit 1
+          fi
+          rm -rf ${file}
+          echo "::notice::✅ SDK解压完成，已删除压缩包"
+        else
+          echo "::notice::✅ 缓存命中，跳过下载，直接使用缓存的工具链"
+        fi
+        
+        # 建立软链接
+        echo "::notice::✅ 开始建立工具链软链接（g++|gcc|c|cpp|ld|as）"
+        files=("g++" "gcc" "c++" "cpp" "ld" "as")
+        for file in "${files[@]}"; do
+          link_path=$(find $(pwd) -type f -name "*-linux-*-${file}.bin" | head -n1)
+          if [[ -z "${link_path}" ]]; then
+            echo "::warning::❌ 未找到 ${file} 可执行文件，跳过软链接"
+            continue
+          fi
+          sudo ln -sf "${link_path}" "/usr/bin/${file}"
+          echo "::notice::✅ 已创建软链接：/usr/bin/${file} -> ${link_path}"
+        done
+        
+        # 输出最终状态为成功
+        echo "status=success" >> $GITHUB_OUTPUT
+        echo "::notice::✅ OpenWrt ToolChain 安装完成！"
+        
+        
+           

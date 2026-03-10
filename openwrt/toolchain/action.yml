@@ -144,7 +144,7 @@ runs:
             continue
           fi
           sudo ln -sf "${link_path}" "/usr/bin/${file}"
-          echo "::notice::✅ 已创建软链接：/usr/bin/${file} -> ${link_path}"
+          echo "::notice::🔗 已创建软链接：/usr/bin/${file} -> ${link_path}"
         done
         echo "::notice::✅ 开始配置环境变量"
         sdk_bin="$(find ${{ env.PATH_CACHE }} -type l -name "*-linux-gcc" -print0 | xargs -0 dirname)"
@@ -159,5 +159,5 @@ runs:
       shell: bash
       run: |
         # 输出G++和GCC版本
-        echo "::notice::✅ G++版本：$(g++ --version | head -n 1)"
-        echo "::notice::✅ GCC版本：$(gcc --version | head -n 1)"
+        echo "::debug::✅ G++版本：$(g++ --version | head -n 1)"
+        echo "::debug::✅ GCC版本：$(gcc --version | head -n 1)"

@@ -34,7 +34,7 @@ runs:
         version: ${{ inputs.version }}
         url: https://downloads.openwrt.org/releases/
       run: |
-        # 日志输出：用GitHub官方日志级别，更醒目
+        # 开始初始化数据
         echo "::notice::✅ 开始初始化 ${arch} 架构 ${version} 版本的配置"
 
         # 架构匹配逻辑
@@ -78,7 +78,7 @@ runs:
         name: ${{ env.sdk_name }}
       working-directory: ${{ inputs.path }}
       run: |
-        # 初始化输出状态为失败
+        # 下载安装OpenWrt ToolChain
         echo "status=failed" >> $GITHUB_OUTPUT
 
         # 检查目录大小（判断是否已缓存）
@@ -154,5 +154,6 @@ runs:
     - name: Output Version
       shell: bash
       run: |
+        # 输出G++和GCC版本
         echo "::notice::✅ G++版本：$(g++ --version | head -n 1)"
         echo "::notice::✅ GCC版本：$(gcc --version | head -n 1)"

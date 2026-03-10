@@ -150,3 +150,10 @@ runs:
         # 输出最终状态为成功
         echo "status=success" >> $GITHUB_OUTPUT
         echo "::notice::✅ OpenWrt ToolChain 安装完成！"
+
+- name: Output Version
+      shell: bash
+      run: |
+         echo "::notice::✅ G++版本：$(g++  --version | head -n 1)"
+         echo "::notice::✅ GCC版本：$(gcc  --version | head -n 1)"
+

@@ -63,7 +63,6 @@ runs:
         echo "::notice::✅ 初始化完成，SDK地址：$url/$version/targets/$sdk-path"
 
     - name: Setup Cache
-      shell: bash
       uses: actions/cache@v4
       with:
         path: ${{ inputs.path }}
@@ -151,6 +150,3 @@ runs:
         # 输出最终状态为成功
         echo "status=success" >> $GITHUB_OUTPUT
         echo "::notice::✅ OpenWrt ToolChain 安装完成！"
-
-
-

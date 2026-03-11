@@ -44,11 +44,12 @@ runs:
         if [[ ! -f ${file} ]]; then
           echo "✅拉取仓库: ${url}"
           git clone --depth=1 "${url}"
-          files=$(find . -type f -name "*.c")
-          echo "✅编译源码: ${files}"
-          gcc -Os -s -std=gnu99 -Wall -Werror "${files}" -o "${file}" || {
+          cd usign
+          gcc -Os -s -std=gnu99 -Wall -Werror *.c -o "${file}" || {
             echo "❌usign编译源码失败"
+            exit 1
           }
+          cd ..
         fi
 
         if [[ -f ${file} ]]; then
@@ -81,8 +82,7 @@ runs:
         sudo ln -fs ${file} /bin/$(basename ${file} .sh)
 
     - name: Install Script
-      env:
-        script: ${{ github.workspace }}/.github
+      working-directory: ${{ github.workspace }}/.github
       shell: bash
       run: |
         # 安装 Script

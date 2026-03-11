@@ -20,7 +20,7 @@ runs:
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       env:
-        url: ${{ env.repo_url }}
+        url: ${{ env.url }}
         key: ${{ env.key }}
       id: repo_path
       run: |

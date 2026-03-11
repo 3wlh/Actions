@@ -49,7 +49,7 @@ runs:
             echo "❌usign编译源码失败"
             exit 1
           }
-          cd ..
+          echo "✅usign编译源码成功"
         fi
 
         if [[ -f ${file} ]]; then

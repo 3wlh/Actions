@@ -21,6 +21,7 @@ runs:
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       env:
+        repo: ${{ env.repo_dir }}
         url: ${{ env.url }}
         pub: https://github.com/3wlh/OpenWrt_Packages/releases/download/key/mime.pub
       id: repo_path
@@ -28,14 +29,15 @@ runs:
       run: |
         # 仓库拉取
         echo "✅ 拉取仓库"
-        git clone --depth=1 "${url}"
+        git clone --depth=1 "${url}" "${repo}"
         test -d "bin" || mkdir -p "bin"
         test -f "mime.pub" || wget -q -O mime.pub "${pub}"
-        echo "path=$(pwd)" >> $GITHUB_OUTPUT
+        echo "path=${repo}" >> $GITHUB_OUTPUT
 
     - name: Install usign
       working-directory: ${{ env.usign_dir }}
       env:
+        repo: ${{ env.usign_dir }}
         file: ${{ env.repo_dir }}/bin/usign
         url: "https://github.com/openwrt/usign.git"
       shell: bash
@@ -43,7 +45,7 @@ runs:
         # 安装 Usign
         if [[ ! -f ${file} ]]; then
           echo "✅拉取仓库: ${url}"
-          git clone --depth=1 "${url}"
+          git clone --depth=1 "${url}" "${repo}"
           cd usign
           gcc -Os -s -std=gnu99 -Wall -Werror *.c -o "${file}" || {
             echo "❌usign编译源码失败"

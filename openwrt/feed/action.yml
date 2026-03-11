@@ -2,7 +2,7 @@ name: "OpenWrt Feed"
 description: "OpenWrt Feed"
 
 outputs:
-  repo-path:
+  path:
     value: ${{ steps.repo_path.outputs.path }}
 
 runs:

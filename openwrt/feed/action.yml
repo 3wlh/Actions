@@ -2,8 +2,9 @@ name: "OpenWrt Feed"
 description: "OpenWrt Feed"
 
 outputs:
-  repo-path: { value: ${{ steps.repo_path.outputs.path }} }
-  
+  repo-path:
+    value: ${{ steps.repo_path.outputs.path }}
+
 runs:
   using: "composite"
   steps:
@@ -16,25 +17,25 @@ runs:
         echo "usign_dir=$(mktemp -d)" >> $GITHUB_ENV
         echo "opkg_dir=$(mktemp -d)" >> $GITHUB_ENV
         echo "✅ 初始化完成"
-    
+
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       env:
         url: ${{ env.url }}
+        pub: https://github.com/3wlh/OpenWrt_Packages/releases/download/key/mime.pub
       id: repo_path
       run: |
         # 仓库拉取
         echo "✅ 拉取仓库"
-        git clone  --depth=1 "${url}"
-        test -d "bin" || mkdir -pm 755 "bin"
-        test -f "mime.pub" || \
-        wget -q https://github.com/3wlh/OpenWrt_Packages/releases/download/key/mime.pub > mime.pub
+        git clone --depth=1 "${url}"
+        test -d "bin" || mkdir -p "bin"
+        test -f "mime.pub" || wget -q -O mime.pub "${pub}"
         echo "path=$(pwd)" >> $GITHUB_OUTPUT
-        
+
     - name: Install usign
       working-directory: ${{ env.usign_dir }}
       env:
-        file: ${{ env.repo_dir }}//bin/usign
+        file: ${{ env.repo_dir }}/bin/usign
         url: "https://github.com/openwrt/usign.git"
       shell: bash
       run: |
@@ -47,20 +48,21 @@ runs:
           gcc -Os -s -std=gnu99 -Wall -Werror "${files}" -o "${file}" || {
             echo "❌usign编译源码失败"
           }
-        if
+        fi
+
         if [[ -f ${file} ]]; then
           echo "✅安装 Usign"
           sudo cp -f "${file}" /usr/local/bin/usign || echo "❌复制文件失败"
           # 验证安装
           if command -v usign &>/dev/null; then
             echo "✅Usign 安装成功: $(usign --version 2>/dev/null || echo "版本检测成功")"
-            else
+          else
             echo "❌Usign 安装后无法执行"
           fi
         else
           echo "❌编译失败，未生成 usign 可执行文件"
         fi
-        
+
     - name: Install ipkg-make-index
       working-directory: ${{ env.ipkg_dir }}
       env:
@@ -71,13 +73,12 @@ runs:
         # 安装 ipkg-make-index
         if [[ ! -f ${file} ]]; then
           echo "✅下载脚本: ${url}"
-          curl -# -L --fail "${url}" > $(pwd)/.github/.shell/ipkg-make-index.sh
-          sed -i -e 's/$MKHASH sha256 $pkg/sha256sum $pkg | cut -d" " -f1/' \ # 替换系统内置SHA256
-          -e 's/$sed_safe_pkg/$(basename ${sed_safe_pkg})/' ${file}   # 抛弃目录, 只取文件名
+          curl -# -L --fail "${url}" -o ${file}
+          sed -i -e 's/$MKHASH sha256 $pkg/sha256sum $pkg | cut -d" " -f1/' -e 's/$sed_safe_pkg/$(basename ${sed_safe_pkg})/' ${file}
         fi
         echo "✅安装脚本: $(basename ${file} .sh)"
-        sudo sudo ln -fs ${file} /bin/$(basename ${file} .sh)
-    
+        sudo ln -fs ${file} /bin/$(basename ${file} .sh)
+
     - name: Install Script
       env:
         script: ${{ github.workspace }}/.github
@@ -85,8 +86,8 @@ runs:
       run: |
         # 安装 Script
         chmod -R 755 "$(pwd)/.shell" "$(pwd)/.packages"
-        for file in $(pwd)/.shell/*.sh $(pwd)/.packages/*.sh ;do
-          if [[ -f ${file} ]];then
+        for file in $(pwd)/.shell/*.sh $(pwd)/.packages/*.sh; do
+          if [[ -f ${file} ]]; then
             echo "✅安装脚本: ${file}"
             name=$(basename ${file} .sh)
             if sudo ln -fs "${file}" "/bin/${name}"; then

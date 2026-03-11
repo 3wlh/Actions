@@ -80,8 +80,10 @@ runs:
           curl -# -L --fail "${url}" -o ${file}
           sed -i -e 's/$MKHASH sha256 $pkg/sha256sum $pkg | cut -d" " -f1/' -e 's/$sed_safe_pkg/$(basename ${sed_safe_pkg})/' ${file}
         fi
-        echo "✅安装脚本: $(basename ${file} .sh)"
+        echo "✅安装脚本: ${file}"
+        sudo chmod 755 ${file}
         sudo ln -fs ${file} /bin/$(basename ${file} .sh)
+        echo "✅$(basename ${file} .sh)安装成功"
 
     - name: Install Script
       working-directory: ${{ github.workspace }}/.github

@@ -21,14 +21,14 @@ runs:
       working-directory: ${{ env.repo_dir }}
       env:
         url: ${{ env.url }}
-        key: ${{ env.key }}
       id: repo_path
       run: |
         # 仓库拉取
         echo "✅ 拉取仓库"
         git clone  --depth=1 "${url}"
         test -d "bin" || mkdir -pm 755 "bin"
-        test -f "mime.pub" || echo -e "${key}" > mime.pub
+        test -f "mime.pub" || \
+        wget -q https://github.com/3wlh/OpenWrt_Packages/releases/download/key/mime.pub > mime.pub
         echo "path=$(pwd)" >> $GITHUB_OUTPUT
         
     - name: Install usign

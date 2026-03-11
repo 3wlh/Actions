@@ -24,6 +24,7 @@ runs:
         url: ${{ env.url }}
         pub: https://github.com/3wlh/OpenWrt_Packages/releases/download/key/mime.pub
       id: repo_path
+      shell: bash
       run: |
         # 仓库拉取
         echo "✅ 拉取仓库"

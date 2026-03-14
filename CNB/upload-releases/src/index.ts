@@ -115,7 +115,8 @@ async function createOrUpdateRelease(
     }
 
     core.info("Release updated");
-    core.debug(`Updated release ID: ${updatedRelease.id}`);
+    core.debug(`Updated release data: ${JSON.stringify(updatedRelease)}`);
+    core.info(`Updated release ID: ${updatedRelease.id}`);
     return updatedRelease;
   }
 

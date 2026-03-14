@@ -26026,7 +26026,8 @@ async function createOrUpdateRelease(apiUrl, repo, token, params) {
             throw new Error(`Failed to update release: ${JSON.stringify(updatedRelease)}`);
         }
         core.info("Release updated");
-        core.debug(`Updated release ID: ${updatedRelease.id}`);
+        core.debug(`Updated release data: ${JSON.stringify(updatedRelease)}`);
+        core.info(`Updated release ID: ${updatedRelease.id}`);
         return updatedRelease;
     }
     throw new Error(`Failed to create release (${status}): ${JSON.stringify(data)}`);

@@ -1,0 +1,40 @@
+name: "CNB Delete Releases"
+description: "Github Action for deleting CNB Releases and assets"
+author: "cnb"
+inputs:
+  token:
+    description: "Authorized CNB Personal Access Token"
+    required: true
+  repository:
+    description: "Repository in <owner>/<repo> format"
+    required: false
+  tag_name:
+    description: "Tag name of the release to delete. Supports * wildcard (e.g., v1.* matches v1.0, v1.1)"
+    required: false
+  release_id:
+    description: "Release ID to delete (alternative to tag_name)"
+    required: false
+  delete_all:
+    description: "Delete all releases. Defaults to false"
+    required: false
+  keep_latest:
+    description: "When delete_all is true, keep the latest N releases"
+    required: false
+  asset_names:
+    description: "Newline-delimited list of asset names to delete (supports regex)"
+    required: false
+  api_url:
+    description: "CNB API URL"
+    required: false
+    default: "https://api.cnb.cool"
+outputs:
+  deleted_releases:
+    description: "JSON array of deleted release tag names"
+  deleted_assets:
+    description: "JSON array of deleted asset names"
+runs:
+  using: "node20"
+  main: "dist/index.js"
+branding:
+  color: "red"
+  icon: "trash-2"

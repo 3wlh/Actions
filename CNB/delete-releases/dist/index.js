@@ -25707,14 +25707,6 @@ async function request(url, options) {
     }
     return { status: response.status, data };
 }
-async function listReleases(apiUrl, repo, token) {
-    const url = `${apiUrl}/${repo}/-/releases`;
-    const { status, data } = await request(url, { token });
-    if (status !== 200) {
-        throw new Error(`Failed to list releases: ${JSON.stringify(data)}`);
-    }
-    return data;
-}
 async function listTags(apiUrl, repo, token) {
     const url = `${apiUrl}/${repo}/-/git/tags`;
     const { status, data } = await request(url, { token });
@@ -25758,7 +25750,6 @@ async function run() {
         const apiUrl = core.getInput("api_url") || "https://api.cnb.cool";
         const repo = core.getInput("repo") || process.env.GITHUB_REPOSITORY || "";
         const tagName = core.getInput("tag_name");
-        const deleteReleaseFlag = core.getInput("delete_release") !== "false";
         if (!repo) {
             throw new Error("repo is required");
         }
@@ -25779,14 +25770,12 @@ async function run() {
             else {
                 core.info(`Found ${matchedTags.length} matching tags`);
                 for (const tag of matchedTags) {
-                    if (deleteReleaseFlag) {
-                        const release = await getReleaseByTag(apiUrl, repo, token, tag.name);
-                        if (release) {
-                            core.info(`Deleting release: ${tag.name} (ID: ${release.id})`);
-                            await deleteRelease(apiUrl, repo, token, release.id);
-                            deletedReleases.push(tag.name);
-                            core.info(`Deleted release: ${tag.name}`);
-                        }
+                    const release = await getReleaseByTag(apiUrl, repo, token, tag.name);
+                    if (release) {
+                        core.info(`Deleting release: ${tag.name} (ID: ${release.id})`);
+                        await deleteRelease(apiUrl, repo, token, release.id);
+                        deletedReleases.push(tag.name);
+                        core.info(`Deleted release: ${tag.name}`);
                     }
                     try {
                         await deleteTag(apiUrl, repo, token, tag.name);
@@ -25800,16 +25789,12 @@ async function run() {
             }
         }
         else {
-            if (deleteReleaseFlag) {
-                const release = await getReleaseByTag(apiUrl, repo, token, tagName);
-                if (!release) {
-                    core.warning(`Release not found: ${tagName}`);
-                }
-                else {
-                    await deleteRelease(apiUrl, repo, token, release.id);
-                    deletedReleases.push(tagName);
-                    core.info(`Deleted release: ${tagName}`);
-                }
+            const release = await getReleaseByTag(apiUrl, repo, token, tagName);
+            if (release) {
+                core.info(`Deleting release: ${tagName} (ID: ${release.id})`);
+                await deleteRelease(apiUrl, repo, token, release.id);
+                deletedReleases.push(tagName);
+                core.info(`Deleted release: ${tagName}`);
             }
             try {
                 await deleteTag(apiUrl, repo, token, tagName);

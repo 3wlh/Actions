@@ -4,9 +4,8 @@
 
 ## 功能
 
-- 删除指定 tag
+- 删除指定 tag（自动删除关联的 Release）
 - 支持通配符匹配删除多个 tag
-- 可选同时删除 Release
 
 ## 使用方法
 
@@ -21,18 +20,6 @@
     tag_name: "v1.0.0"
 ```
 
-### 删除 Tag 和 Release
-
-```yaml
-- name: Delete Release and Tag
-  uses: 3wlh/actions/CNB/delete-releases@main
-  with:
-    token: ${{ secrets.TOKEN_CNB }}
-    repo: owner/repo
-    tag_name: "v1.0.0"
-    delete_release: true
-```
-
 ### 通配符匹配删除
 
 ```yaml
@@ -42,18 +29,16 @@
     token: ${{ secrets.TOKEN_CNB }}
     repo: owner/repo
     tag_name: "v1.*"
-    delete_release: true
 ```
 
 ## 输入参数
 
-| 参数             | 描述                         | 必填 | 默认值                 |
-| ---------------- | ---------------------------- | ---- | ---------------------- |
-| `token`          | CNB Personal Access Token    | ✅   | -                      |
-| `repo`           | 仓库名称，格式：`owner/repo` | ❌   | `github.repository`    |
-| `tag_name`       | 标签名，支持 `*` 通配符      | ✅   | -                      |
-| `delete_release` | 同时删除 Release             | ❌   | `true`                 |
-| `api_url`        | CNB API 地址                 | ❌   | `https://api.cnb.cool` |
+| 参数       | 描述                         | 必填 | 默认值                 |
+| ---------- | ---------------------------- | ---- | ---------------------- |
+| `token`    | CNB Personal Access Token    | ✅   | -                      |
+| `repo`     | 仓库名称，格式：`owner/repo` | ❌   | `github.repository`    |
+| `tag_name` | 标签名，支持 `*` 通配符      | ✅   | -                      |
+| `api_url`  | CNB API 地址                 | ❌   | `https://api.cnb.cool` |
 
 ## 输出参数
 

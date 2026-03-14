@@ -9,12 +9,8 @@ inputs:
     description: "Repository in <owner>/<repo> format"
     required: false
   tag_name:
-    description: "Tag name to delete. Use * for wildcard matching (e.g., v1.* or *_test_*). Without * = exact match. Default: only delete tag, set delete_release=true to also delete release"
+    description: "Tag name to delete. Use * for wildcard matching (e.g., v1.* or *_test_*). Without * = exact match"
     required: false
-  delete_release:
-    description: "Also delete the release. Defaults to true (set to false to only delete tag)"
-    required: false
-    default: "true"
   api_url:
     description: "CNB API URL"
     required: false

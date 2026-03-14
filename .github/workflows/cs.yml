@@ -16,7 +16,6 @@ jobs:
           ls /tmp/cs/
       
       - name: cs
-        if: false
         uses: 3wlh/actions/CNB/upload-releases@main
         with:
           repo: 3wlh/OpenWrt_Packages
@@ -26,10 +25,22 @@ jobs:
             ## 测试
             - 上传时间：`${{ env.BUILD_TIME }}`
           files: /tmp/cs/*
-          
+      
+      - name: cs2
+        uses: 3wlh/actions/CNB/upload-releases@main
+        with:
+          repo: 3wlh/OpenWrt_Packages
+          token: ${{ secrets.TOKEN_CND }}
+          tag_name: "GitHub-Actions_v1.5.0"
+          body: |
+            ## 测试
+            - 上传时间：`${{ env.BUILD_TIME }}`
+          files: /tmp/cs/*
+      
       - name: Delete Releases
         uses: 3wlh/actions/CNB/delete-releases@main
         with:
           repo: 3wlh/OpenWrt_Packages
           token: ${{ secrets.TOKEN_CND }}
           tag_name: "GitHub-Actions_*" 
+          

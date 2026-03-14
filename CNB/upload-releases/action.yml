@@ -211,21 +211,52 @@ runs:
             FILENAME=$(basename "$file")
             echo "::notice::Uploading asset: $FILENAME"
             
-            ASSET_RESPONSE=$(curl --connect-timeout 10 --max-time 300 -s -w "\n%{http_code}" -X POST \
-              "${UPLOAD_URL}?name=${FILENAME}" \
+            STEP1_RESPONSE=$(curl --connect-timeout 10 --max-time 60 -s -w "\n%{http_code}" -X POST \
+              "${API_URL}/${REPO}/-/releases/${RELEASE_ID}/asset-upload-url" \
               -H "Authorization: Bearer ${INPUT_TOKEN}" \
-              -H "Content-Type: application/octet-stream" \
+              -H "Content-Type: application/json" \
               -H "Accept: application/vnd.cnb.api+json" \
+              -d "{\"asset_name\": \"${FILENAME}\", \"overwrite\": true}")
+            
+            STEP1_HTTP_CODE=$(echo "$STEP1_RESPONSE" | tail -n1)
+            STEP1_BODY=$(echo "$STEP1_RESPONSE" | sed '$d')
+            
+            if [ "$STEP1_HTTP_CODE" != "201" ]; then
+              echo "::warning::Failed to get upload URL for $FILENAME (HTTP $STEP1_HTTP_CODE): $STEP1_BODY"
+              continue
+            fi
+            
+            UPLOAD_URL=$(echo "$STEP1_BODY" | jq -r '.upload_url')
+            VERIFY_URL=$(echo "$STEP1_BODY" | jq -r '.verify_url')
+            
+            echo "::debug::Upload URL: $UPLOAD_URL"
+            echo "::debug::Verify URL: $VERIFY_URL"
+            
+            STEP2_RESPONSE=$(curl --connect-timeout 10 --max-time 300 -s -w "\n%{http_code}" -X PUT \
+              "$UPLOAD_URL" \
+              -H "Content-Type: application/octet-stream" \
               --data-binary "@$file")
             
-            ASSET_HTTP_CODE=$(echo "$ASSET_RESPONSE" | tail -n1)
-            ASSET_BODY=$(echo "$ASSET_RESPONSE" | sed '$d')
+            STEP2_HTTP_CODE=$(echo "$STEP2_RESPONSE" | tail -n1)
             
-            if [ "$ASSET_HTTP_CODE" = "201" ] || [ "$ASSET_HTTP_CODE" = "200" ]; then
-              UPLOADED_ASSETS=$(echo "$UPLOADED_ASSETS" | jq --argjson asset "$ASSET_BODY" '. + [$asset]')
+            if [ "$STEP2_HTTP_CODE" != "200" ] && [ "$STEP2_HTTP_CODE" != "201" ]; then
+              echo "::warning::Failed to upload $FILENAME (HTTP $STEP2_HTTP_CODE)"
+              continue
+            fi
+            
+            STEP3_RESPONSE=$(curl --connect-timeout 10 --max-time 60 -s -w "\n%{http_code}" -X POST \
+              "$VERIFY_URL" \
+              -H "Authorization: Bearer ${INPUT_TOKEN}" \
+              -H "Accept: application/vnd.cnb.api+json")
+            
+            STEP3_HTTP_CODE=$(echo "$STEP3_RESPONSE" | tail -n1)
+            STEP3_BODY=$(echo "$STEP3_RESPONSE" | sed '$d')
+            
+            if [ "$STEP3_HTTP_CODE" = "200" ] || [ "$STEP3_HTTP_CODE" = "201" ]; then
+              UPLOADED_ASSETS=$(echo "$UPLOADED_ASSETS" | jq --argjson asset "$STEP3_BODY" '. + [$asset]' 2>/dev/null || echo "$UPLOADED_ASSETS")
               echo "::notice::Uploaded: $FILENAME"
             else
-              echo "::warning::Failed to upload $FILENAME (HTTP $ASSET_HTTP_CODE): $ASSET_BODY"
+              echo "::warning::Failed to confirm upload for $FILENAME (HTTP $STEP3_HTTP_CODE): $STEP3_BODY"
             fi
           done <<< "$ALL_FILES"
           

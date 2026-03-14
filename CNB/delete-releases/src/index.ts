@@ -4,7 +4,6 @@ interface Release {
   id: string;
   tag_name: string;
   name: string;
-  assets?: { id: string; name: string }[];
 }
 
 async function request(
@@ -97,18 +96,21 @@ async function deleteRelease(
   }
 }
 
-async function deleteAsset(
+async function deleteTag(
   apiUrl: string,
   repo: string,
   token: string,
-  releaseId: string,
-  assetId: string
+  tagName: string
 ): Promise<void> {
-  const url = `${apiUrl}/${repo}/-/releases/${releaseId}/assets/${assetId}`;
+  const url = `${apiUrl}/${repo}/-/git/tags/${encodeURIComponent(tagName)}`;
+  core.debug(`Deleting tag: ${url}`);
+  
   const { status, data } = await request(url, { method: "DELETE", token });
 
-  if (status !== 200) {
-    throw new Error(`Failed to delete asset: ${JSON.stringify(data)}`);
+  core.debug(`Delete tag response status: ${status}`);
+
+  if (status !== 200 && status !== 204) {
+    throw new Error(`Failed to delete tag (${status}): ${JSON.stringify(data)}`);
   }
 }
 
@@ -116,104 +118,81 @@ async function run(): Promise<void> {
   try {
     const token = core.getInput("token", { required: true });
     const apiUrl = core.getInput("api_url") || "https://api.cnb.cool";
-    const repository = core.getInput("repository") || process.env.GITHUB_REPOSITORY || "";
+    const repo = core.getInput("repo") || process.env.GITHUB_REPOSITORY || "";
     const tagName = core.getInput("tag_name");
-    const releaseId = core.getInput("release_id");
-    const deleteAll = core.getInput("delete_all") === "true";
-    const keepLatest = parseInt(core.getInput("keep_latest") || "0", 10);
-    const assetNames = core.getInput("asset_names");
+    const deleteReleaseFlag = core.getInput("delete_release") !== "false";
 
-    if (!repository) {
-      throw new Error("repository is required");
+    if (!repo) {
+      throw new Error("repo is required");
+    }
+
+    if (!tagName) {
+      throw new Error("tag_name is required");
     }
 
     const deletedReleases: string[] = [];
-    const deletedAssets: string[] = [];
+    const deletedTags: string[] = [];
 
-    if (assetNames && (tagName || releaseId)) {
-      const release = tagName
-        ? await getReleaseByTag(apiUrl, repository, token, tagName)
-        : null;
+    const hasWildcard = tagName.includes("*");
 
-      const targetReleaseId = release?.id || releaseId;
+    if (hasWildcard) {
+      const regexPattern = new RegExp("^" + tagName.replace(/\*/g, ".*") + "$");
+      core.info(`Matching tags with pattern: ${regexPattern}`);
 
-      if (!targetReleaseId) {
-        throw new Error("Release not found");
-      }
+      const releases = await listReleases(apiUrl, repo, token);
+      const matchedReleases = releases.filter((r) => regexPattern.test(r.tag_name));
 
-      const names = assetNames.split("\n").filter((n) => n.trim());
-      const currentRelease = release || (await listReleases(apiUrl, repository, token)).find((r) => r.id === releaseId);
-
-      if (currentRelease?.assets) {
-        for (const asset of currentRelease.assets) {
-          if (names.some((n) => asset.name === n.trim() || new RegExp(n.trim()).test(asset.name))) {
-            await deleteAsset(apiUrl, repository, token, targetReleaseId, asset.id);
-            deletedAssets.push(asset.name);
-            core.info(`Deleted asset: ${asset.name}`);
-          }
-        }
-      }
-    } else if (deleteAll) {
-      const releases = await listReleases(apiUrl, repository, token);
-
-      let releasesToDelete = releases;
-      if (keepLatest > 0) {
-        releasesToDelete = releases.slice(keepLatest);
-      }
-
-      for (const release of releasesToDelete) {
-        await deleteRelease(apiUrl, repository, token, release.id);
-        deletedReleases.push(release.tag_name);
-        core.info(`Deleted release: ${release.tag_name}`);
-      }
-    } else if (tagName) {
-      const hasWildcard = tagName.includes("*");
-
-      if (hasWildcard) {
-        const regexPattern = new RegExp("^" + tagName.replace(/\*/g, ".*") + "$");
-        core.info(`Matching releases with pattern: ${regexPattern}`);
-
-        const releases = await listReleases(apiUrl, repository, token);
-        const matchedReleases = releases.filter((r) => regexPattern.test(r.tag_name));
-
-        if (matchedReleases.length === 0) {
-          core.warning(`No releases matched pattern: ${tagName}`);
-        } else {
-          core.info(`Found ${matchedReleases.length} matching releases`);
-          for (const release of matchedReleases) {
+      if (matchedReleases.length === 0) {
+        core.warning(`No tags matched pattern: ${tagName}`);
+      } else {
+        core.info(`Found ${matchedReleases.length} matching tags`);
+        for (const release of matchedReleases) {
+          if (deleteReleaseFlag) {
             core.info(`Deleting release: ${release.tag_name} (ID: ${release.id})`);
-            await deleteRelease(apiUrl, repository, token, release.id);
+            await deleteRelease(apiUrl, repo, token, release.id);
             deletedReleases.push(release.tag_name);
             core.info(`Deleted release: ${release.tag_name}`);
           }
+          
+          try {
+            await deleteTag(apiUrl, repo, token, release.tag_name);
+            deletedTags.push(release.tag_name);
+            core.info(`Deleted tag: ${release.tag_name}`);
+          } catch (error) {
+            core.warning(`Failed to delete tag ${release.tag_name}: ${error}`);
+          }
         }
-      } else {
-        const release = await getReleaseByTag(apiUrl, repository, token, tagName);
+      }
+    } else {
+      if (deleteReleaseFlag) {
+        const release = await getReleaseByTag(apiUrl, repo, token, tagName);
 
         if (!release) {
           core.warning(`Release not found: ${tagName}`);
         } else {
-          await deleteRelease(apiUrl, repository, token, release.id);
+          await deleteRelease(apiUrl, repo, token, release.id);
           deletedReleases.push(tagName);
           core.info(`Deleted release: ${tagName}`);
         }
       }
-    } else if (releaseId) {
-      await deleteRelease(apiUrl, repository, token, releaseId);
-      deletedReleases.push(releaseId);
-      core.info(`Deleted release: ${releaseId}`);
-    } else {
-      throw new Error("Either tag_name, release_id, delete_all, or asset_names must be provided");
+      
+      try {
+        await deleteTag(apiUrl, repo, token, tagName);
+        deletedTags.push(tagName);
+        core.info(`Deleted tag: ${tagName}`);
+      } catch (error) {
+        core.warning(`Failed to delete tag ${tagName}: ${error}`);
+      }
     }
 
     core.setOutput("deleted_releases", JSON.stringify(deletedReleases));
-    core.setOutput("deleted_assets", JSON.stringify(deletedAssets));
+    core.setOutput("deleted_tags", JSON.stringify(deletedTags));
 
     if (deletedReleases.length > 0) {
       core.info(`Deleted ${deletedReleases.length} release(s)`);
     }
-    if (deletedAssets.length > 0) {
-      core.info(`Deleted ${deletedAssets.length} asset(s)`);
+    if (deletedTags.length > 0) {
+      core.info(`Deleted ${deletedTags.length} tag(s)`);
     }
   } catch (error) {
     if (error instanceof Error) {

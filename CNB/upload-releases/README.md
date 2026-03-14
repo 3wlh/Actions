@@ -16,7 +16,7 @@
   uses: 3wlh/actions/CNB/upload-releases@main
   with:
     token: ${{ secrets.TOKEN_CNB }}
-    repository: owner/repo
+    repo: owner/repo
     tag_name: "v1.0.0"
     name: "Release v1.0.0"
     body: |
@@ -30,30 +30,30 @@
 
 ## 输入参数
 
-| 参数 | 描述 | 必填 | 默认值 |
-|------|------|------|--------|
-| `token` | CNB Personal Access Token | ✅ | - |
-| `repository` | 仓库名称，格式：`owner/repo` | ❌ | `github.repository` |
-| `tag_name` | 标签名称 | ❌ | `github.ref_name` |
-| `name` | Release 名称 | ❌ | `tag_name` |
-| `body` | Release 描述内容 | ❌ | - |
-| `body_path` | Release 描述文件路径 | ❌ | - |
-| `draft` | 是否为草稿 | ❌ | `false` |
-| `prerelease` | 是否为预发布 | ❌ | `false` |
-| `target_commitish` | 目标分支或 commit | ❌ | `main` |
-| `make_latest` | 设置为最新版本 (`true`/`false`/`legacy`) | ❌ | - |
-| `files` | 要上传的文件（支持换行分隔的通配符） | ❌ | - |
-| `fail_on_unmatched_files` | 文件未匹配时是否失败 | ❌ | `false` |
-| `api_url` | CNB API 地址 | ❌ | `https://api.cnb.cool` |
+| 参数                      | 描述                                     | 必填 | 默认值                 |
+| ------------------------- | ---------------------------------------- | ---- | ---------------------- |
+| `token`                   | CNB Personal Access Token                | ✅   | -                      |
+| `repo`                    | 仓库名称，格式：`owner/repo`             | ❌   | `github.repository`    |
+| `tag_name`                | 标签名称                                 | ❌   | `github.ref_name`      |
+| `name`                    | Release 名称                             | ❌   | `tag_name`             |
+| `body`                    | Release 描述内容                         | ❌   | -                      |
+| `body_path`               | Release 描述文件路径                     | ❌   | -                      |
+| `draft`                   | 是否为草稿                               | ❌   | `false`                |
+| `prerelease`              | 是否为预发布                             | ❌   | `false`                |
+| `target_commitish`        | 目标分支或 commit                        | ❌   | `main`                 |
+| `make_latest`             | 设置为最新版本 (`true`/`false`/`legacy`) | ❌   | -                      |
+| `files`                   | 要上传的文件（支持换行分隔的通配符）     | ❌   | -                      |
+| `fail_on_unmatched_files` | 文件未匹配时是否失败                     | ❌   | `false`                |
+| `api_url`                 | CNB API 地址                             | ❌   | `https://api.cnb.cool` |
 
 ## 输出参数
 
-| 参数 | 描述 |
-|------|------|
-| `url` | Release 页面 URL |
-| `id` | Release ID |
-| `upload_url` | 上传资产的 URL |
-| `assets` | 已上传资产的 JSON 数组 |
+| 参数         | 描述                   |
+| ------------ | ---------------------- |
+| `url`        | Release 页面 URL       |
+| `id`         | Release ID             |
+| `upload_url` | 上传资产的 URL         |
+| `assets`     | 已上传资产的 JSON 数组 |
 
 ## 完整示例
 
@@ -63,7 +63,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   release:
@@ -82,7 +82,7 @@ jobs:
         uses: 3wlh/actions/CNB/upload-releases@main
         with:
           token: ${{ secrets.TOKEN_CNB }}
-          repository: ${{ github.repository }}
+          repo: ${{ github.repository }}
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"
           body: |

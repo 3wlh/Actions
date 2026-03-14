@@ -16,9 +16,10 @@ jobs:
           ls /tmp/cs/
       
       - name: cs
+        if: false
         uses: 3wlh/actions/CNB/upload-releases@main
         with:
-          repository: 3wlh/OpenWrt_Packages
+          repo: 3wlh/OpenWrt_Packages
           token: ${{ secrets.TOKEN_CND }}
           tag_name: "GitHub-Actions_v1.0.0"
           body: |
@@ -29,6 +30,6 @@ jobs:
       - name: Delete Releases
         uses: 3wlh/actions/CNB/delete-releases@main
         with:
-          repository: 3wlh/OpenWrt_Packages
+          repo: 3wlh/OpenWrt_Packages
           token: ${{ secrets.TOKEN_CND }}
           tag_name: "GitHub-Actions_*" 

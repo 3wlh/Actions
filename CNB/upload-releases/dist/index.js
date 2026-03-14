@@ -26087,7 +26087,7 @@ async function run() {
     try {
         const token = core.getInput("token", { required: true });
         const apiUrl = core.getInput("api_url") || "https://api.cnb.cool";
-        const repository = core.getInput("repository") || process.env.GITHUB_REPOSITORY || "";
+        const repo = core.getInput("repo") || process.env.GITHUB_REPOSITORY || "";
         const tagName = core.getInput("tag_name") || process.env.GITHUB_REF_NAME || "";
         const releaseName = core.getInput("name") || tagName;
         const body = core.getInput("body");
@@ -26098,8 +26098,8 @@ async function run() {
         const makeLatest = core.getInput("make_latest");
         const filesInput = core.getInput("files");
         const failOnUnmatched = core.getInput("fail_on_unmatched_files") === "true";
-        if (!repository) {
-            throw new Error("repository is required");
+        if (!repo) {
+            throw new Error("repo is required");
         }
         if (!tagName) {
             throw new Error("tag_name is required");
@@ -26119,12 +26119,12 @@ async function run() {
         if (makeLatest) {
             params.make_latest = makeLatest;
         }
-        core.info(`Creating release ${tagName} for ${repository}`);
-        const release = await createOrUpdateRelease(apiUrl, repository, token, params);
+        core.info(`Creating release ${tagName} for ${repo}`);
+        const release = await createOrUpdateRelease(apiUrl, repo, token, params);
         core.info(`Release ID: ${release.id}`);
         core.setOutput("url", release.html_url || "");
         core.setOutput("id", release.id);
-        core.setOutput("upload_url", `${apiUrl}/${repository}/-/releases/${release.id}/assets`);
+        core.setOutput("upload_url", `${apiUrl}/${repo}/-/releases/${release.id}/assets`);
         const assets = [];
         if (filesInput) {
             const patterns = filesInput.split("\n").filter((p) => p.trim());
@@ -26135,7 +26135,7 @@ async function run() {
                 }
                 for (const file of files) {
                     try {
-                        const asset = await uploadAsset(apiUrl, repository, token, release.id, file);
+                        const asset = await uploadAsset(apiUrl, repo, token, release.id, file);
                         assets.push(asset);
                     }
                     catch (error) {

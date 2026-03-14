@@ -9,8 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: cs
+        run: |
+          mkdir -pm 755 /tmp/cs
+          echo "CS" > /tmp/cs/CS.TXT
+          echo "CS2" > /tmp/cs/CS2.TXT
+      
+      - name: cs
         uses: 3wlh/actions/CNB/upload-releases@main
         with:
           repository: 3wlh/OpenWrt_Packages
           token: ${{ secrets.TOKEN_CND }}
           tag_name: "v1.0.0"
+          files: /tmp/cs/*

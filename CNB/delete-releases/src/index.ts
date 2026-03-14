@@ -86,10 +86,14 @@ async function deleteRelease(
   releaseId: string
 ): Promise<void> {
   const url = `${apiUrl}/${repo}/-/releases/${releaseId}`;
+  core.debug(`Deleting release: ${url}`);
+  
   const { status, data } = await request(url, { method: "DELETE", token });
 
-  if (status !== 200) {
-    throw new Error(`Failed to delete release: ${JSON.stringify(data)}`);
+  core.debug(`Delete response status: ${status}, data: ${JSON.stringify(data)}`);
+
+  if (status !== 200 && status !== 204) {
+    throw new Error(`Failed to delete release (${status}): ${JSON.stringify(data)}`);
   }
 }
 
@@ -175,7 +179,9 @@ async function run(): Promise<void> {
         if (matchedReleases.length === 0) {
           core.warning(`No releases matched pattern: ${tagName}`);
         } else {
+          core.info(`Found ${matchedReleases.length} matching releases`);
           for (const release of matchedReleases) {
+            core.info(`Deleting release: ${release.tag_name} (ID: ${release.id})`);
             await deleteRelease(apiUrl, repository, token, release.id);
             deletedReleases.push(release.tag_name);
             core.info(`Deleted release: ${release.tag_name}`);

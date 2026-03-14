@@ -6,6 +6,12 @@ interface Release {
   name: string;
 }
 
+interface Tag {
+  name: string;
+  target: string;
+  target_type: string;
+}
+
 async function request(
   url: string,
   options: {

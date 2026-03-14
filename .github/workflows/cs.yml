@@ -29,5 +29,6 @@ jobs:
       - name: Delete Releases
         uses: 3wlh/actions/CNB/delete-releases@main
         with:
+          repository: 3wlh/OpenWrt_Packages
           token: ${{ secrets.TOKEN_CNB }}
           tag_name: "GitHub-Actions_*" 

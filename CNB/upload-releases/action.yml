@@ -178,7 +178,11 @@ runs:
           ALL_FILES=""
           while IFS= read -r pattern; do
             [ -z "$pattern" ] && continue
-            MATCHES=$(find . -path "./$pattern" -type f 2>/dev/null || true)
+            if [[ "$pattern" == /* ]]; then
+              MATCHES=$(find "$pattern" -type f 2>/dev/null || true)
+            else
+              MATCHES=$(find . -path "./$pattern" -type f 2>/dev/null || true)
+            fi
             if [ -z "$MATCHES" ] && [ "$FAIL_ON_UNMATCHED" = "true" ]; then
               echo "::error::No files matched pattern: $pattern"
               exit 1

@@ -13,6 +13,7 @@ jobs:
           mkdir -pm 755 /tmp/cs
           echo "CS" > /tmp/cs/CS.TXT
           echo "CS2" > /tmp/cs/CS2.TXT
+          ls /tmp/cs/
       
       - name: cs
         uses: 3wlh/actions/CNB/upload-releases@main

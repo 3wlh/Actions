@@ -15,7 +15,6 @@ runs:
         echo "✅ 创建文件目录"
         echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV
         echo "usign_dir=$(mktemp -d)" >> $GITHUB_ENV
-        echo "opkg_dir=$(mktemp -d)" >> $GITHUB_ENV
         echo "✅ 初始化完成"
 
     - name: Git Clone Repositories

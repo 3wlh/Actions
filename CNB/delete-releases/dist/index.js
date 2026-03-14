@@ -25772,7 +25772,7 @@ async function run() {
             const regexPattern = new RegExp("^" + tagName.replace(/\*/g, ".*") + "$");
             core.info(`Matching tags with pattern: ${regexPattern}`);
             const tags = await listTags(apiUrl, repo, token);
-            const matchedTags = tags.filter((t) => regexPattern.test(t));
+            const matchedTags = tags.filter((t) => regexPattern.test(t.name));
             if (matchedTags.length === 0) {
                 core.warning(`No tags matched pattern: ${tagName}`);
             }
@@ -25780,21 +25780,21 @@ async function run() {
                 core.info(`Found ${matchedTags.length} matching tags`);
                 for (const tag of matchedTags) {
                     if (deleteReleaseFlag) {
-                        const release = await getReleaseByTag(apiUrl, repo, token, tag);
+                        const release = await getReleaseByTag(apiUrl, repo, token, tag.name);
                         if (release) {
-                            core.info(`Deleting release: ${tag} (ID: ${release.id})`);
+                            core.info(`Deleting release: ${tag.name} (ID: ${release.id})`);
                             await deleteRelease(apiUrl, repo, token, release.id);
-                            deletedReleases.push(tag);
-                            core.info(`Deleted release: ${tag}`);
+                            deletedReleases.push(tag.name);
+                            core.info(`Deleted release: ${tag.name}`);
                         }
                     }
                     try {
-                        await deleteTag(apiUrl, repo, token, tag);
-                        deletedTags.push(tag);
-                        core.info(`Deleted tag: ${tag}`);
+                        await deleteTag(apiUrl, repo, token, tag.name);
+                        deletedTags.push(tag.name);
+                        core.info(`Deleted tag: ${tag.name}`);
                     }
                     catch (error) {
-                        core.warning(`Failed to delete tag ${tag}: ${error}`);
+                        core.warning(`Failed to delete tag ${tag.name}: ${error}`);
                     }
                 }
             }

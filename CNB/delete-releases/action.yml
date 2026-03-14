@@ -5,7 +5,7 @@ inputs:
   token:
     description: "Authorized CNB Personal Access Token"
     required: true
-  repo:
+  repository:
     description: "Repository in <owner>/<repo> format"
     required: false
   tag_name:

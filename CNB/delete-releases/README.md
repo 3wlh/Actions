@@ -16,7 +16,7 @@
   uses: 3wlh/actions/CNB/delete-releases@main
   with:
     token: ${{ secrets.TOKEN_CNB }}
-    repo: owner/repo
+    repository: owner/repo
     tag_name: "v1.0.0"
 ```
 
@@ -27,18 +27,18 @@
   uses: 3wlh/actions/CNB/delete-releases@main
   with:
     token: ${{ secrets.TOKEN_CNB }}
-    repo: owner/repo
+    repository: owner/repo
     tag_name: "v1.*"
 ```
 
 ## 输入参数
 
-| 参数       | 描述                         | 必填 | 默认值                 |
-| ---------- | ---------------------------- | ---- | ---------------------- |
-| `token`    | CNB Personal Access Token    | ✅   | -                      |
-| `repo`     | 仓库名称，格式：`owner/repo` | ❌   | `github.repository`    |
-| `tag_name` | 标签名，支持 `*` 通配符      | ✅   | -                      |
-| `api_url`  | CNB API 地址                 | ❌   | `https://api.cnb.cool` |
+| 参数         | 描述                         | 必填 | 默认值                 |
+| ------------ | ---------------------------- | ---- | ---------------------- |
+| `token`      | CNB Personal Access Token    | ✅   | -                      |
+| `repository` | 仓库名称，格式：`owner/repo` | ❌   | `github.repository`    |
+| `tag_name`   | 标签名，支持 `*` 通配符      | ✅   | -                      |
+| `api_url`    | CNB API 地址                 | ❌   | `https://api.cnb.cool` |
 
 ## 输出参数
 

@@ -124,11 +124,11 @@ async function run(): Promise<void> {
   try {
     const token = core.getInput("token", { required: true });
     const apiUrl = core.getInput("api_url") || "https://api.cnb.cool";
-    const repo = core.getInput("repo") || process.env.GITHUB_REPOSITORY || "";
+    const repository = core.getInput("repository") || process.env.GITHUB_REPOSITORY || "";
     const tagName = core.getInput("tag_name");
 
-    if (!repo) {
-      throw new Error("repo is required");
+    if (!repository) {
+      throw new Error("repository is required");
     }
 
     if (!tagName) {
@@ -144,7 +144,7 @@ async function run(): Promise<void> {
       const regexPattern = new RegExp("^" + tagName.replace(/\*/g, ".*") + "$");
       core.info(`Matching tags with pattern: ${regexPattern}`);
 
-      const tags = await listTags(apiUrl, repo, token);
+      const tags = await listTags(apiUrl, repository, token);
       const matchedTags = tags.filter((t) => regexPattern.test(t.name));
 
       if (matchedTags.length === 0) {
@@ -152,16 +152,16 @@ async function run(): Promise<void> {
       } else {
         core.info(`Found ${matchedTags.length} matching tags`);
         for (const tag of matchedTags) {
-          const release = await getReleaseByTag(apiUrl, repo, token, tag.name);
+          const release = await getReleaseByTag(apiUrl, repository, token, tag.name);
           if (release) {
             core.info(`Deleting release: ${tag.name} (ID: ${release.id})`);
-            await deleteRelease(apiUrl, repo, token, release.id);
+            await deleteRelease(apiUrl, repository, token, release.id);
             deletedReleases.push(tag.name);
             core.info(`Deleted release: ${tag.name}`);
           }
           
           try {
-            await deleteTag(apiUrl, repo, token, tag.name);
+            await deleteTag(apiUrl, repository, token, tag.name);
             deletedTags.push(tag.name);
             core.info(`Deleted tag: ${tag.name}`);
           } catch (error) {
@@ -170,16 +170,16 @@ async function run(): Promise<void> {
         }
       }
     } else {
-      const release = await getReleaseByTag(apiUrl, repo, token, tagName);
+      const release = await getReleaseByTag(apiUrl, repository, token, tagName);
       if (release) {
         core.info(`Deleting release: ${tagName} (ID: ${release.id})`);
-        await deleteRelease(apiUrl, repo, token, release.id);
+        await deleteRelease(apiUrl, repository, token, release.id);
         deletedReleases.push(tagName);
         core.info(`Deleted release: ${tagName}`);
       }
       
       try {
-        await deleteTag(apiUrl, repo, token, tagName);
+        await deleteTag(apiUrl, repository, token, tagName);
         deletedTags.push(tagName);
         core.info(`Deleted tag: ${tagName}`);
       } catch (error) {

@@ -16,7 +16,7 @@
   uses: 3wlh/actions/CNB/upload-releases@main
   with:
     token: ${{ secrets.TOKEN_CNB }}
-    repo: owner/repo
+    repository: owner/repo
     tag_name: "v1.0.0"
     name: "Release v1.0.0"
     body: |
@@ -33,7 +33,7 @@
 | 参数                      | 描述                                     | 必填 | 默认值                 |
 | ------------------------- | ---------------------------------------- | ---- | ---------------------- |
 | `token`                   | CNB Personal Access Token                | ✅   | -                      |
-| `repo`                    | 仓库名称，格式：`owner/repo`             | ❌   | `github.repository`    |
+| `repository`              | 仓库名称，格式：`owner/repo`             | ❌   | `github.repository`    |
 | `tag_name`                | 标签名称                                 | ❌   | `github.ref_name`      |
 | `name`                    | Release 名称                             | ❌   | `tag_name`             |
 | `body`                    | Release 描述内容                         | ❌   | -                      |
@@ -82,7 +82,7 @@ jobs:
         uses: 3wlh/actions/CNB/upload-releases@main
         with:
           token: ${{ secrets.TOKEN_CNB }}
-          repo: ${{ github.repository }}
+          repository: ${{ github.repository }}
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"
           body: |

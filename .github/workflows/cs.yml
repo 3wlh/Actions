@@ -11,5 +11,6 @@ jobs:
       - name: cs
         uses: 3wlh/actions/CNB/upload-releases@main
         with:
+          repository: 3wlh/OpenWrt_Packages
           token: ${{ secrets.TOKEN_CND }}
           tag_name: "v1.0.0"

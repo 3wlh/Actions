@@ -142,6 +142,21 @@ runs:
         HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
         BODY=$(echo "$RESPONSE" | sed '$d')
 
+        if [ "$HTTP_CODE" = "409" ]; then
+          echo "::warning::Release already exists, fetching existing release..."
+          GET_RESPONSE=$(curl --connect-timeout 10 --max-time 60 -s -w "\n%{http_code}" -X GET \
+            "${API_URL}/${REPO}/-/releases/tags/${TAG_NAME}" \
+            -H "Authorization: Bearer ${INPUT_TOKEN}" \
+            -H "Accept: application/vnd.cnb.api+json")
+          GET_HTTP_CODE=$(echo "$GET_RESPONSE" | tail -n1)
+          BODY=$(echo "$GET_RESPONSE" | sed '$d')
+          if [ "$GET_HTTP_CODE" != "200" ]; then
+            echo "::error::Failed to get existing release (HTTP $GET_HTTP_CODE): $BODY"
+            exit 1
+          fi
+          HTTP_CODE="201"
+        fi
+
         if [ "$HTTP_CODE" != "201" ]; then
           echo "::error::Failed to create release (HTTP $HTTP_CODE): $BODY"
           exit 1

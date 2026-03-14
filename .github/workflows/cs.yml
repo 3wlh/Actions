@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: cs
-        uses: 3wlh/actions/cnb/upload-releases@main
+        uses: 3wlh/actions/CNB/upload-releases@main
         with:
           token: ${{ secrets.TOKEN_CND }}
           tag_name: "v1.0.0"

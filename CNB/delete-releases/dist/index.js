@@ -25715,6 +25715,14 @@ async function listReleases(apiUrl, repo, token) {
     }
     return data;
 }
+async function listTags(apiUrl, repo, token) {
+    const url = `${apiUrl}/${repo}/-/git/tags`;
+    const { status, data } = await request(url, { token });
+    if (status !== 200) {
+        throw new Error(`Failed to list tags: ${JSON.stringify(data)}`);
+    }
+    return data;
+}
 async function getReleaseByTag(apiUrl, repo, token, tagName) {
     const url = `${apiUrl}/${repo}/-/releases/tags/${tagName}`;
     const { status, data } = await request(url, { token });
@@ -25763,27 +25771,30 @@ async function run() {
         if (hasWildcard) {
             const regexPattern = new RegExp("^" + tagName.replace(/\*/g, ".*") + "$");
             core.info(`Matching tags with pattern: ${regexPattern}`);
-            const releases = await listReleases(apiUrl, repo, token);
-            const matchedReleases = releases.filter((r) => regexPattern.test(r.tag_name));
-            if (matchedReleases.length === 0) {
+            const tags = await listTags(apiUrl, repo, token);
+            const matchedTags = tags.filter((t) => regexPattern.test(t));
+            if (matchedTags.length === 0) {
                 core.warning(`No tags matched pattern: ${tagName}`);
             }
             else {
-                core.info(`Found ${matchedReleases.length} matching tags`);
-                for (const release of matchedReleases) {
+                core.info(`Found ${matchedTags.length} matching tags`);
+                for (const tag of matchedTags) {
                     if (deleteReleaseFlag) {
-                        core.info(`Deleting release: ${release.tag_name} (ID: ${release.id})`);
-                        await deleteRelease(apiUrl, repo, token, release.id);
-                        deletedReleases.push(release.tag_name);
-                        core.info(`Deleted release: ${release.tag_name}`);
+                        const release = await getReleaseByTag(apiUrl, repo, token, tag);
+                        if (release) {
+                            core.info(`Deleting release: ${tag} (ID: ${release.id})`);
+                            await deleteRelease(apiUrl, repo, token, release.id);
+                            deletedReleases.push(tag);
+                            core.info(`Deleted release: ${tag}`);
+                        }
                     }
                     try {
-                        await deleteTag(apiUrl, repo, token, release.tag_name);
-                        deletedTags.push(release.tag_name);
-                        core.info(`Deleted tag: ${release.tag_name}`);
+                        await deleteTag(apiUrl, repo, token, tag);
+                        deletedTags.push(tag);
+                        core.info(`Deleted tag: ${tag}`);
                     }
                     catch (error) {
-                        core.warning(`Failed to delete tag ${release.tag_name}: ${error}`);
+                        core.warning(`Failed to delete tag ${tag}: ${error}`);
                     }
                 }
             }

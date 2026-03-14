@@ -174,28 +174,42 @@ runs:
 
         ASSETS="[]"
 
+        echo "::debug::FILES input: $FILES"
+
         if [ -n "$FILES" ]; then
           ALL_FILES=""
           while IFS= read -r pattern; do
             [ -z "$pattern" ] && continue
+            echo "::debug::Matching pattern: $pattern"
             if [[ "$pattern" == /* ]]; then
-              MATCHES=$(find "$pattern" -type f 2>/dev/null || true)
+              shopt -s nullglob
+              MATCHES=$(ls -1 $pattern 2>/dev/null || true)
+              shopt -u nullglob
             else
-              MATCHES=$(find . -path "./$pattern" -type f 2>/dev/null || true)
+              shopt -s nullglob
+              MATCHES=$(ls -1 $pattern 2>/dev/null || true)
+              shopt -u nullglob
             fi
+            echo "::debug::Matches found: $MATCHES"
             if [ -z "$MATCHES" ] && [ "$FAIL_ON_UNMATCHED" = "true" ]; then
               echo "::error::No files matched pattern: $pattern"
               exit 1
             fi
-            ALL_FILES="$ALL_FILES$MATCHES"$'\n'
+            for f in $MATCHES; do
+              if [ -f "$f" ]; then
+                ALL_FILES="$ALL_FILES$f"$'\n'
+              fi
+            done
           done <<< "$FILES"
+          
+          echo "::debug::All files to upload: $ALL_FILES"
           
           UPLOADED_ASSETS="[]"
           
           while IFS= read -r file; do
             [ -z "$file" ] && continue
             FILENAME=$(basename "$file")
-            echo "::debug::Uploading asset: $FILENAME"
+            echo "::notice::Uploading asset: $FILENAME"
             
             ASSET_RESPONSE=$(curl --connect-timeout 10 --max-time 300 -s -w "\n%{http_code}" -X POST \
               "${UPLOAD_URL}?name=${FILENAME}" \

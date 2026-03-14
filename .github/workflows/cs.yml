@@ -1,0 +1,19 @@
+name: cs
+
+on:
+  workflow_dispatch:
+    
+jobs:
+  jods_Actions:
+    name: cs
+    runs-on: ubuntu-latest
+    steps:
+      - name: cs
+        uses: 3wlh/actions/cnb/upload-releases@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          delete_workflow_pattern: Pages|pages|Actions|actions|Workflow|workflow
+          #retain_days: 1
+          keep_minimum_runs: 0
+          use_daily_retention: true

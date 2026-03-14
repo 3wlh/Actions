@@ -115,6 +115,7 @@ async function createOrUpdateRelease(
     }
 
     core.info("Release updated");
+    core.debug(`Updated release ID: ${updatedRelease.id}`);
     return updatedRelease;
   }
 
@@ -135,6 +136,8 @@ async function uploadAsset(
   core.info(`Uploading asset: ${fileName} (${fileSize} bytes)`);
 
   const url = `${apiUrl}/${repo}/-/releases/${releaseId}/asset-upload-url`;
+  core.debug(`Requesting upload URL: ${url}`);
+
   const { status: urlStatus, data: urlData } = await request(url, {
     method: "POST",
     token,
@@ -146,8 +149,10 @@ async function uploadAsset(
     contentType: "application/json",
   });
 
+  core.debug(`Upload URL response status: ${urlStatus}, data: ${JSON.stringify(urlData)}`);
+
   if (urlStatus !== 201) {
-    throw new Error(`Failed to get upload URL: ${JSON.stringify(urlData)}`);
+    throw new Error(`Failed to get upload URL (${urlStatus}): ${JSON.stringify(urlData)}`);
   }
 
   const { upload_url, verify_url } = urlData as UploadURLResponse;
@@ -228,6 +233,7 @@ async function run(): Promise<void> {
 
     const release = await createOrUpdateRelease(apiUrl, repository, token, params);
 
+    core.info(`Release ID: ${release.id}`);
     core.setOutput("url", release.html_url || "");
     core.setOutput("id", release.id);
     core.setOutput("upload_url", `${apiUrl}/${repository}/-/releases/${release.id}/assets`);

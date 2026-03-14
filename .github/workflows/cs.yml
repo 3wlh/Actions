@@ -21,4 +21,7 @@ jobs:
           repository: 3wlh/OpenWrt_Packages
           token: ${{ secrets.TOKEN_CND }}
           tag_name: "v1.0.0"
+          body: |
+            ## 测试
+            - 上传时间：`${{ env.BUILD_TIME }}`
           files: /tmp/cs/*

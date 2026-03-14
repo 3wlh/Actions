@@ -209,14 +209,15 @@ runs:
           while IFS= read -r file; do
             [ -z "$file" ] && continue
             FILENAME=$(basename "$file")
-            echo "::notice::Uploading asset: $FILENAME"
+            FILESIZE=$(stat -c%s "$file" 2>/dev/null || wc -c < "$file")
+            echo "::notice::Uploading asset: $FILENAME ($FILESIZE bytes)"
             
             STEP1_RESPONSE=$(curl --connect-timeout 10 --max-time 60 -s -w "\n%{http_code}" -X POST \
               "${API_URL}/${REPO}/-/releases/${RELEASE_ID}/asset-upload-url" \
               -H "Authorization: Bearer ${INPUT_TOKEN}" \
               -H "Content-Type: application/json" \
               -H "Accept: application/vnd.cnb.api+json" \
-              -d "{\"asset_name\": \"${FILENAME}\", \"overwrite\": true}")
+              -d "{\"asset_name\": \"${FILENAME}\", \"size\": ${FILESIZE}, \"overwrite\": true}")
             
             STEP1_HTTP_CODE=$(echo "$STEP1_RESPONSE" | tail -n1)
             STEP1_BODY=$(echo "$STEP1_RESPONSE" | sed '$d')

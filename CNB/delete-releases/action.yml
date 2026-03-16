@@ -21,7 +21,7 @@ outputs:
   deleted_tags:
     description: "JSON array of deleted git tag names"
 runs:
-  using: "node20"
+  using: "node24"
   main: "dist/index.js"
 branding:
   color: "red"

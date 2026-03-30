@@ -44,22 +44,13 @@ jobs:
       working-directory: ${{ env.repo_dir }}
       run : |
         git clone ${{ env.repo_url }} $(pwd)
-        ls
     
     - name: Git Remove Files
-      working-directory: ${{ env.repo_dir }}
-      run : |
-        # 删除历史中所有当前不存在的文件
-        # git ls-files > /tmp/keep-files.txt
-        git filter-repo --invert-paths --paths-from-file <(git ls-files) --force
-        # 获取当前默认分支
-        branch=$(git rev-parse --abbrev-ref HEAD)
-        # 清理优化Git仓库
-        git gc --prune=now --aggressive
-        # 强制提交到远程仓库
-        git remote add origin ${{ env.repo_url }}
-        git push --force origin ${branch}
-
+      uses: 3wlh/actions/git/remove-files@main
+      with:
+        repo_url: ${{ env.repo_url }}
+        repo_path: ${{ env.repo_dir }}
+          
     - name: Git Remove Files Tow
       if: false
       working-directory: ${{ env.repo_dir }}

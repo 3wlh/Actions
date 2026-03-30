@@ -1,17 +1,28 @@
-name: 'Remove Commits'
+name: 'Git Remove Commits'
+inputs:
+  repo_url:
+    description: "Authorized Repository URL"
+    required: true
+  repo_path:
+    description: "Repository in <owner>/<repo> path"
+    required: true
 runs:
   using: composite
   steps:
     - name: Repository Remove Commits
       shell: bash
       run: |
-        echo "✅ 获取当前默认分支名称（如 main|master）"
-        branch=$(git rev-parse --abbrev-ref HEAD)
-        echo "✅ 当前分支: $branch"
-
-        echo "✅ 配置 Git 用户身份"
+        # 配置 Git 数据
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Repository Remove Commits
+      working-directory: ${{ inputs.repo_path }}
+      shell: bash
+      run: |
+        # 移除 Git 所有提交
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        echo "✅ 当前分支: $branch"
 
         echo "✅ 创建孤儿分支（无任何提交历史）"
         git checkout --orphan latest_branch
@@ -23,15 +34,16 @@ runs:
         git commit -m "${COMMIT_MESSAGE:-Reset commit history} - $(date +%Y-%m-%d\ %H:%M:%S)"
 
         echo "✅ 强制删除原分支（-D 强制删除，避免分支未合并的提示）"
-        git branch -d ${branch}
+        git branch -D ${branch}
 
         echo "✅ 将新分支重命名为原分支名"
         git branch -m ${branch}
-
-        echo "✅ 清理Git仓库（优化空间，删除无用对象）"
+        
+        echo "✅ 执行 Git 垃圾回收"
         git gc --prune=now --aggressive
-
+        
         echo "✅ 强制推送到远程仓库（需确保分支无保护规则）"
+        # git remote add origin ${{ inputs.repo_url }}
         git push --force origin ${branch}
 
         echo "✅ 重新关联本地分支与远程分支"

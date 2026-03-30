@@ -1,0 +1,42 @@
+name: 'Git Remove Files'
+inputs:
+  repo_url:
+    description: "Authorized Repository URL"
+    required: true
+  repo_path:
+    description: "Repository in <owner>/<repo> path"
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install Package
+      shell: bash
+      run : |
+        # 安装软件包
+        sudo pip install git-filter-repo
+    
+    - name: Set Git identity
+      shell: bash
+      run : |
+        # 配置 Git 数据
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
+        git config --global user.name "3wlh-actions[bot]"
+    
+    - name: Repository Remove Files
+      working-directory: ${{ inputs.repo_path }}
+      shell: bash
+      run: |
+        # 删除历史中所有当前不存在的文件
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        echo "✅ 当前分支: $branch"
+
+        echo "✅ 删除历史中所有当前不存在的文件"
+        git filter-repo --invert-paths --paths-from-file <(git ls-files) --force
+
+        echo "✅ 清理Git仓库（优化空间，删除无用对象）"
+        git gc --prune=now --aggressive
+
+        echo "✅ 强制推送到远程仓库（需确保分支无保护规则）"
+        git remote add origin ${{ inputs.repo_url }}
+        git push --force origin ${branch}

@@ -47,7 +47,7 @@ jobs:
       working-directory: ${{ env.repo_dir }}
       run : |
         # 删除历史中所有当前不存在的文件
-        #git ls-files > /tmp/keep-files.txt
+        # git ls-files > /tmp/keep-files.txt
         git filter-repo --invert-paths --paths-from-file <(git ls-files) --force
         # 获取当前默认分支
         branch=$(git rev-parse --abbrev-ref HEAD)

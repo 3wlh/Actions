@@ -37,7 +37,29 @@ runs:
         echo "✅ 清理Git仓库（优化空间，删除无用对象）"
         git gc --prune=now --aggressive
 
-        echo "✅ 强制推送到远程仓库（需确保分支无保护规则）"
-        git remote set-url origin ${{ inputs.repo_url }}
+        echo "✅ 强制推送到远程仓库"
         # git remote add origin ${{ inputs.repo_url }}
+        git remote set-url origin ${{ inputs.repo_url }}
+        git push --force origin ${branch}
+    
+    - name: Git Remove Files Tow
+      if: false
+      working-directory: ${{ inputs.repo_path }}
+      run : |
+        # 删除历史中所有当前不存在的文件
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        echo "✅ 当前分支: $branch"
+
+        echo "✅ 删除历史中所有当前不存在的文件"
+        git ls-files > /tmp/keep-files.txt
+        git filter-branch --force --index-filter \
+        "git rm --cached --ignore-unmatch $(cat /tmp/keep-files.txt | grep -v '^$' | tr '\n' ' ')" \
+        --prune-empty --tag-name-filter cat -- --all
+      
+        echo "✅ 清理Git仓库（优化空间，删除无用对象）"
+        git gc --prune=now --aggressive
+
+        echo "✅ 强制推送到远程仓库"
+        # git remote add origin ${{ inputs.repo_url }}
+        git remote set-url origin ${{ inputs.repo_url }}
         git push --force origin ${branch}

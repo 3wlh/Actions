@@ -34,16 +34,16 @@ runs:
         echo "✅ 提交更改"
         git commit -m "${COMMIT_MESSAGE:-Reset commit history} - $(date +%Y-%m-%d\ %H:%M:%S)"
 
-        echo "✅ 强制删除原分支（-D 强制删除，避免分支未合并的提示）"
+        echo "✅ 强制删除原分支（-D 强制删除）"
         git branch -D ${branch}
 
         echo "✅ 将新分支重命名为原分支名"
         git branch -m ${branch}
         
-        echo "✅ 执行 Git 垃圾回收"
+        echo "✅ 清理Git仓库（优化空间，删除无用对象）"
         git gc --prune=now --aggressive
         
-        echo "✅ 强制推送到远程仓库（需确保分支无保护规则）"
+        echo "✅ 强制推送到远程仓库"
         # git remote add origin ${{ inputs.repo_url }}
         git remote set-url origin ${{ inputs.repo_url }}
         git push --force origin ${branch}

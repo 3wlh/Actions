@@ -40,21 +40,3 @@ jobs:
       with:
         repo_url: ${{ env.repo_url }}
         repo_path: ${{ env.repo_dir }}
-    
-    - name: Git Remove Files Tow
-      if: false
-      working-directory: ${{ env.repo_dir }}
-      run : |
-        # 删除历史中所有当前不存在的文件
-        git ls-files > /tmp/keep-files.txt
-        git filter-branch --force --index-filter \
-        "git rm --cached --ignore-unmatch $(cat /tmp/keep-files.txt | grep -v '^$' | tr '\n' ' ')" \
-        --prune-empty --tag-name-filter cat -- --all
-        # 获取当前默认分支
-        branch=$(git rev-parse --abbrev-ref HEAD)
-        # 提交更改
-        git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
-        # 清理优化Git仓库
-        git gc --prune=now --aggressive
-        # 强制提交到远程仓库
-        git push --force origin ${branch}

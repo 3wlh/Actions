@@ -21,6 +21,7 @@ runs:
       working-directory: ${{ inputs.repo_path }}
       shell: bash
       run: |
+        ls
         # 移除 Git 所有提交
         branch=$(git rev-parse --abbrev-ref HEAD)
         echo "✅ 当前分支: $branch"

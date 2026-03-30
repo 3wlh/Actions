@@ -35,7 +35,7 @@ jobs:
       run : |
         git clone ${{ env.repo_url }} $(pwd)
     
-    - name: Git Remove Files
+    - name: Git Remove Commits
       uses: 3wlh/actions/git/remove-commits@main
       with:
         repo_url: ${{ env.repo_url }}

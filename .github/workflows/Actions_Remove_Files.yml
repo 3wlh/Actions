@@ -25,7 +25,7 @@ jobs:
     - name: Install Package
       run : |
         # 安装软件
-        sudo apt update && \
+        sudo apt update > /dev/null 2>&1 && \
         sudo apt install git-filter-repo
         
     - name: Set Git identity
@@ -43,15 +43,32 @@ jobs:
         git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/${{ inputs.repos }} $(pwd)
         ls
     
-    - name: Git Erase Commits
-      working-directory: ${{ env.ipkg_dir }}
+    - name: Git Remove Files
+      working-directory: ${{ env.repo_dir }}
       run : |
         # 删除历史中所有当前不存在的文件
-        git filter-repo --invert-paths --paths-to-keep <(git ls-files)
+        git filter-repo --invert-paths --paths-to-keep <(git ls-files) # --force
         # 获取当前默认分支
         branch=$(git rev-parse --abbrev-ref HEAD)
-        # 创建一个新的分支
-        git checkout --orphan latest_branch
+        # 提交更改
+        git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
+        # 清理优化Git仓库
+        git gc --prune=now --aggressive
+        # 强制提交到远程仓库
+        git push --force origin ${branch}
+
+    - name: Git Remove Files Tow
+      if: false
+      working-directory: ${{ env.repo_dir }}
+      run : |
+        # 生成所有当前存在文件的清单，保存到 files.txt
+        git ls-files > files.txt
+        # 删除历史中所有当前不存在的文件
+        git filter-branch --force --index-filter \
+        "git rm --cached --ignore-unmatch $(cat files.txt | grep -v '^$' | tr '\n' ' ')" \
+        --prune-empty --tag-name-filter cat -- --all
+        # 获取当前默认分支
+        branch=$(git rev-parse --abbrev-ref HEAD)
         # 提交更改
         git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
         # 清理优化Git仓库

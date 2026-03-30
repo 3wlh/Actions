@@ -21,7 +21,7 @@ env:
   repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/3wlh/${{ inputs.repos }}
 
 jobs:
-  Remove:
+  job:
     name: Remove ${{ inputs.repos }} Files
     runs-on: ubuntu-latest
     steps:        

@@ -47,7 +47,8 @@ jobs:
       working-directory: ${{ env.repo_dir }}
       run : |
         # 删除历史中所有当前不存在的文件
-        git filter-repo --invert-paths --paths-to-keep <(git ls-files) # --force
+        git ls-files > /tmp/keep-files.txt
+        git filter-repo --invert-paths --paths-to-keep /tmp/keep-files.txt # --force
         # 获取当前默认分支
         branch=$(git rev-parse --abbrev-ref HEAD)
         # 提交更改
@@ -61,11 +62,10 @@ jobs:
       if: false
       working-directory: ${{ env.repo_dir }}
       run : |
-        # 生成所有当前存在文件的清单，保存到 files.txt
-        git ls-files > files.txt
         # 删除历史中所有当前不存在的文件
+        git ls-files > /tmp/keep-files.txt
         git filter-branch --force --index-filter \
-        "git rm --cached --ignore-unmatch $(cat files.txt | grep -v '^$' | tr '\n' ' ')" \
+        "git rm --cached --ignore-unmatch $(cat /tmp/keep-files.txt | grep -v '^$' | tr '\n' ' ')" \
         --prune-empty --tag-name-filter cat -- --all
         # 获取当前默认分支
         branch=$(git rev-parse --abbrev-ref HEAD)

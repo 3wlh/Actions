@@ -4,15 +4,16 @@ inputs:
     description: "Authorized Repository URL"
     required: true
   repo_path:
-    description: "Repository in <owner>/<repo> path"
+    description: "Repository in path"
     required: true
 runs:
   using: composite
   steps:
-    - name: Repository Remove Commits
+    - name: Set Git identity
       shell: bash
       run: |
         # 配置 Git 数据
+        sudo timedatectl set-timezone "Asia/Shanghai"
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
     
@@ -44,6 +45,7 @@ runs:
         
         echo "✅ 强制推送到远程仓库（需确保分支无保护规则）"
         # git remote add origin ${{ inputs.repo_url }}
+        git remote set-url origin ${{ inputs.repo_url }}
         git push --force origin ${branch}
 
         echo "✅ 重新关联本地分支与远程分支"

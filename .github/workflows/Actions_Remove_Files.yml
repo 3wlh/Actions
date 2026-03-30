@@ -24,20 +24,10 @@ jobs:
   Remove:
     name: Remove ${{ inputs.repos }} Files
     runs-on: ubuntu-latest
-    steps:
-    - name: Install Package
-      run : |
-        # 安装软件
-        sudo pip install git-filter-repo
-        # sudo apt update > /dev/null 2>&1 && \
-        # sudo apt install git-filter-repo
-        
-    - name: Set Git identity
+    steps:        
+    - name: init
       run : |
         # 初始化数据
-        sudo timedatectl set-timezone "Asia/Shanghai"
-        git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
-        git config --global user.name "3wlh-actions[bot]"
         echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV
 
     - name: Git Clone Repositories
@@ -50,7 +40,7 @@ jobs:
       with:
         repo_url: ${{ env.repo_url }}
         repo_path: ${{ env.repo_dir }}
-          
+    
     - name: Git Remove Files Tow
       if: false
       working-directory: ${{ env.repo_dir }}

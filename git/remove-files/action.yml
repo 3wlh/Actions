@@ -4,7 +4,7 @@ inputs:
     description: "Authorized Repository URL"
     required: true
   repo_path:
-    description: "Repository in <owner>/<repo> path"
+    description: "Repository in path"
     required: true
 runs:
   using: composite
@@ -38,5 +38,6 @@ runs:
         git gc --prune=now --aggressive
 
         echo "✅ 强制推送到远程仓库（需确保分支无保护规则）"
-        git remote add origin ${{ inputs.repo_url }}
+        git remote set-url origin ${{ inputs.repo_url }}
+        # git remote add origin ${{ inputs.repo_url }}
         git push --force origin ${branch}

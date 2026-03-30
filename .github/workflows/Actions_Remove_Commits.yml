@@ -33,7 +33,7 @@ jobs:
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       run : |
-        git clone  --depth 1 ${{ env.repo_url }} $(pwd)
+        git clone --depth 1 ${{ env.repo_url }} $(pwd)
     
     - name: Git Remove Files
       uses: 3wlh/actions/git/remove-commits@main

@@ -28,8 +28,9 @@ jobs:
     - name: Install Package
       run : |
         # 安装软件
-        sudo apt update > /dev/null 2>&1 && \
-        sudo apt install git-filter-repo
+        sudo pip install git-filter-repo
+        # sudo apt update > /dev/null 2>&1 && \
+        # sudo apt install git-filter-repo
         
     - name: Set Git identity
       run : |

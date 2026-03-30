@@ -40,7 +40,7 @@ jobs:
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       run : |
-        git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/${{ inputs.repos }} $(pwd)
+        git clone https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/3wlh/${{ inputs.repos }} $(pwd)
         ls
     
     - name: Git Remove Files

@@ -22,6 +22,12 @@ jobs:
     name: Remove ${{ inputs.repos }} Files
     runs-on: ubuntu-latest
     steps:
+    - name: Install Package
+      run : |
+        # 安装软件
+        sudo apt update && \
+        sudo apt install git-filter-repo
+        
     - name: Set Git identity
       run : |
         # 初始化数据
@@ -29,7 +35,7 @@ jobs:
         git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
         git config --global user.name "3wlh-actions[bot]"
         echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV
-        
+        sudo apt install git-filter-repo
 
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}

@@ -43,8 +43,9 @@ runs:
         git push --force origin ${branch}
     
     - name: Git Remove Files Tow
-      if: false
       working-directory: ${{ inputs.repo_path }}
+      if: false
+      shell: bash
       run : |
         # 删除历史中所有当前不存在的文件
         branch=$(git rev-parse --abbrev-ref HEAD)

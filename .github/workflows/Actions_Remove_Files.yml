@@ -1,0 +1,54 @@
+name: Actions Remove Files
+on:
+  repository_dispatch:
+  workflow_dispatch:      
+    inputs:
+      repos:
+        description: "Select the Repositories"
+        required: false
+        default: "all"
+        type: choice
+        options:         
+          - 3wlh.github.io
+          - OpenWrt
+          - Script
+          - Yi_Source
+          - Source
+          - Actions-Build_ImmortalWrt
+          - OpenWrt_Packages
+
+jobs:
+  merge:
+    name: Remove ${{ inputs.repos }} Files
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set Git identity
+      run : |
+        # 初始化数据
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
+        git config --global user.name "3wlh-actions[bot]"
+        echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV
+        
+
+    - name: Git Clone Repositories
+      working-directory: ${{ env.repo_dir }}
+      run : |
+        git clone https://3wlh:${{ secrets.TOKEN_3WLH }}@github.com/3wlh/${{ inputs.repos }} $(pwd)
+        ls
+    
+    - name: Git Erase Commits
+      working-directory: ${{ env.ipkg_dir }}
+      run : |
+        # 删除历史中所有当前不存在的文件
+        git filter-repo --invert-paths --paths-to-keep <(git ls-files)
+        # 获取当前默认分支
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        # 创建一个新的分支
+        git checkout --orphan latest_branch
+        # 提交更改
+        git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
+        # 清理优化Git仓库
+        git gc --prune=now --aggressive
+        # 强制提交到远程仓库
+        git push --force origin ${branch}

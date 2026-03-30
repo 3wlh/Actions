@@ -17,6 +17,9 @@ on:
           - Actions-Build_ImmortalWrt
           - OpenWrt_Packages
 
+env:
+  repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/3wlh/${{ inputs.repos }}
+
 jobs:
   merge:
     name: Remove ${{ inputs.repos }} Files
@@ -40,7 +43,7 @@ jobs:
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       run : |
-        git clone https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/3wlh/${{ inputs.repos }} $(pwd)
+        git clone ${{ env.repo_url }} $(pwd)
         ls
     
     - name: Git Remove Files
@@ -54,6 +57,7 @@ jobs:
         # 清理优化Git仓库
         git gc --prune=now --aggressive
         # 强制提交到远程仓库
+        git remote add origin ${{ env.repo_url }}
         git push --force origin ${branch}
 
     - name: Git Remove Files Tow

@@ -47,12 +47,10 @@ jobs:
       working-directory: ${{ env.repo_dir }}
       run : |
         # 删除历史中所有当前不存在的文件
-        git ls-files > /tmp/keep-files.txt
-        git filter-repo --invert-paths --paths-from-file /tmp/keep-files.txt # --force
+        #git ls-files > /tmp/keep-files.txt
+        git filter-repo --invert-paths --paths-from-file <$(git ls-files) --force
         # 获取当前默认分支
         branch=$(git rev-parse --abbrev-ref HEAD)
-        # 提交更改
-        git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
         # 清理优化Git仓库
         git gc --prune=now --aggressive
         # 强制提交到远程仓库

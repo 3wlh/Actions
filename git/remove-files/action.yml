@@ -32,7 +32,7 @@ runs:
         echo "✅ 当前分支: $branch"
 
         echo "✅ 删除历史中所有当前不存在的文件"
-        git filter-repo --invert-paths --paths-from-file <(git ls-files) --force
+        git filter-repo --paths-from-file <(git ls-files) --force
 
         echo "✅ 清理Git仓库（优化空间，删除无用对象）"
         git gc --prune=now --aggressive

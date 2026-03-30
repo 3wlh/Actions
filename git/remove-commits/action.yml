@@ -14,14 +14,14 @@ runs:
       run: |
         # 配置 Git 数据
         sudo timedatectl set-timezone "Asia/Shanghai"
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
+        git config --global user.name "3wlh-actions[bot]"
+
     
     - name: Repository Remove Commits
       working-directory: ${{ inputs.repo_path }}
       shell: bash
       run: |
-        ls
         # 移除 Git 所有提交
         branch=$(git rev-parse --abbrev-ref HEAD)
         echo "✅ 当前分支: $branch"

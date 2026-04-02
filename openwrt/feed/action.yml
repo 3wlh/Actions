@@ -16,7 +16,15 @@ runs:
         echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV
         echo "usign_dir=$(mktemp -d)" >> $GITHUB_ENV
         echo "✅ 初始化完成"
-
+    
+    - name: Set Git identity
+      shell: bash
+      run : |
+        # 配置 Git 数据
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
+        git config --global user.name "3wlh-actions[bot]"
+    
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       env:

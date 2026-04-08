@@ -96,8 +96,8 @@ runs:
       shell: bash
       run: |
         # 安装 Script
-        chmod -R 755 "$(pwd)/.shell" "$(pwd)/.packages"
-        for file in $(pwd)/.shell/*.sh $(pwd)/.packages/*.sh; do
+        chmod -R 755 "$(pwd)/script" "$(pwd)/packages"
+        for file in $(pwd)/script/*.sh $(pwd)/packages/*.sh; do
           if [[ -f ${file} ]]; then
             echo "✅安装脚本: ${file}"
             name=$(basename ${file} .sh)

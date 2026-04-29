@@ -1,0 +1,41 @@
+name: Call Remove Workflows Runs
+
+on:
+  workflow_call:
+    inputs:
+      all:
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  jods_Actions:
+    name: Actions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Repository Remove Workflow Runs
+        if: (inputs.all == false)
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          delete_workflow_pattern: Pages|pages|Actions|actions|Workflow|workflow
+          #retain_days: 1
+          keep_minimum_runs: 0
+          use_daily_retention: true
+
+      - name: Repository  Remove Workflow Runs
+        if: (inputs.all == true)
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          #retain_days: 1
+          keep_minimum_runs: 0
+          use_daily_retention: true

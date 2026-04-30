@@ -33,10 +33,11 @@ runs:
 
         echo "✅ 删除历史中所有当前不存在的文件"
         git filter-repo --paths-from-file <(git ls-files) --force
-
+        git add -A 
+        
         echo "✅ 清理Git仓库（优化空间，删除无用对象）"
         git gc --prune=now --aggressive
-
+        git commit -am "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} update $(date +%Y-%m-%d" "%H:%M:%S)"
         echo "✅ 强制推送到远程仓库"
         git remote add origin ${{ inputs.repo_url }} 2>/dev/null || \
         git remote set-url origin ${{ inputs.repo_url }}

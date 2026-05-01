@@ -69,7 +69,7 @@ runs:
         restore-keys: |
           openwrt-toolchain-${{ inputs.arch }}-
 
-    - name: Download and Unzip ToolChain
+    - name: Download and Unzip SDK
       id: download-sdk
       shell: bash
       env:

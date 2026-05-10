@@ -20,24 +20,29 @@ runs:
       run : |
         # 配置 Git 数据
         sudo timedatectl set-timezone "Asia/Shanghai"
-        git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
-        git config --global user.name "3wlh-actions[bot]"
+        git config --global user.name "3wlh"
+        git config --global user.email "3wlh@3wlh.cn"
     
     - name: Repository Remove Files
       working-directory: ${{ inputs.repo_path }}
       shell: bash
       run: |
-        # 删除历史中所有当前不存在的文件
+        # ✅删除历史中所有当前不存在的文件
         branch=$(git rev-parse --abbrev-ref HEAD)
-        echo "✅ 当前分支: $branch"
-
-        echo "✅ 删除历史中所有当前不存在的文件"
+        echo "✅当前分支: $branch"
+        
+        echo "✅提交一次仓库(确保文件最新)"
+        git add -A >/dev/null 2>&1
+        git commit -m "update - $(date +%Y-%m-%d\ %H:%M:%S)" || true
+        
+        echo "✅删除历史中所有当前不存在的文件"
         git filter-repo --paths-from-file <(git ls-files) --force 
         
-        echo "✅ 清理Git仓库（优化空间，删除无用对象）"
-        git gc --prune=now --aggressive
+        echo "✅清理Git仓库（优化空间，删除无用对象）"
+        git reflog expire --expire=now --all
+        git gc --prune=now
         
-        echo "✅ 强制推送到远程仓库"
+        echo "✅强制推送到远程仓库"
         git remote add origin ${{ inputs.repo_url }} 2>/dev/null || \
         git remote set-url origin ${{ inputs.repo_url }}
         git push --force origin ${branch}
@@ -47,11 +52,11 @@ runs:
       if: false
       shell: bash
       run : |
-        # 删除历史中所有当前不存在的文件
+        # ✅删除历史中所有当前不存在的文件
         branch=$(git rev-parse --abbrev-ref HEAD)
-        echo "✅ 当前分支: $branch"
+        echo "✅当前分支: $branch"
 
-        echo "✅ 删除历史中所有当前不存在的文件"
+        echo "✅删除历史中所有当前不存在的文件"
         git ls-files > /tmp/keep-files.txt
         git filter-branch --force --index-filter \
         "git rm --cached --ignore-unmatch $(cat /tmp/keep-files.txt | grep -v '^$' | tr '\n' ' ')" \

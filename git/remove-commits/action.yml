@@ -14,40 +14,40 @@ runs:
       run: |
         # 配置 Git 数据
         sudo timedatectl set-timezone "Asia/Shanghai"
-        git config --global user.email "3wlh-actions[bot]@users.noreply.github.com"
-        git config --global user.name "3wlh-actions[bot]"
-
-    
+        git config --global user.name "3wlh"
+        git config --global user.email "3wlh@3wlh.cn"
+        
     - name: Repository Remove Commits
       working-directory: ${{ inputs.repo_path }}
       shell: bash
       run: |
-        # 移除 Git 所有提交
+        # ✅移除仓库所有提交
         branch=$(git rev-parse --abbrev-ref HEAD)
-        echo "✅ 当前分支: $branch"
+        echo "✅当前分支: $branch"
 
-        echo "✅ 创建孤儿分支（无任何提交历史）"
+        echo "✅创建孤儿分支（无任何提交历史）"
         git checkout --orphan latest_branch
 
-        echo "✅ 添加所有文件到暂存区"
+        echo "✅添加所有文件到暂存区"
         git add -A >/dev/null 2>&1
 
-        echo "✅ 提交更改"
-        git commit -m "${COMMIT_MESSAGE:-Reset commit history} - $(date +%Y-%m-%d\ %H:%M:%S)"
+        echo "✅提交更改"
+        git commit -m "update - $(date +%Y-%m-%d\ %H:%M:%S)" || true
 
-        echo "✅ 强制删除原分支（-D 强制删除）"
+        echo "✅强制删除原分支（-D 强制删除）"
         git branch -D ${branch}
 
-        echo "✅ 将新分支重命名为原分支名"
+        echo "✅将新分支重命名为原分支名"
         git branch -m ${branch}
         
-        echo "✅ 清理Git仓库（优化空间，删除无用对象）"
-        git gc --prune=now --aggressive
+        echo "✅清理Git仓库（优化空间，删除无用对象）"
+        git reflog expire --expire=now --all
+        git gc --prune=now
         
-        echo "✅ 强制推送到远程仓库"
+        echo "✅强制推送到远程仓库"
         # git remote add origin ${{ inputs.repo_url }}
         git remote set-url origin ${{ inputs.repo_url }}
         git push --force origin ${branch}
 
-        echo "✅ 重新关联本地分支与远程分支"
+        echo "✅重新关联本地分支与远程分支"
         # git branch --set-upstream-to=origin/${branch} ${branch}

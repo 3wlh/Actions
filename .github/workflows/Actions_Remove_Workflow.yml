@@ -1,0 +1,36 @@
+name: Actions Remove Workflow Runs
+
+on:
+  workflow_call:
+    inputs:
+      reuse:
+        type: boolean  
+  workflow_dispatch:
+
+jobs:
+  jod_del:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Call Delete workflow
+        if: (inputs.reuse == true)
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          delete_workflow_pattern: ipkg|opkg|Workflow
+          # retain_days: 1
+          keep_minimum_runs: 0
+          use_daily_retention: true
+          
+      - name: Delete workflow
+        if: (inputs.reuse == false)
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          # retain_days: 1
+          keep_minimum_runs: 3
+          use_daily_retention: true

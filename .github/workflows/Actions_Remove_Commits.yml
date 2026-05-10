@@ -28,9 +28,6 @@ env:
   github_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
   cnb_url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.repos }}
   gitee_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/git_${{ inputs.repos }}
-  repo_url: ${{ inputs.platform == 'GitHub' && env.github_url
-             || inputs.platform == 'CNB'   && env.cnb_url
-             || inputs.platform == 'Gitee' && env.gitee_url }}
              
 jobs:
   job:
@@ -41,9 +38,31 @@ jobs:
       run : |
         # 初始化数据
         echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV
-        
-        
     
+    - name: Decide repo URL by platform
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        GH_URL: ${{ env.github_url }}
+        CNB_URL: ${{ env.cnb_url }}
+        GITEE_URL: ${{ env.gitee_url }}
+      run: |
+        set -e
+        case "$PLATFORM" in
+          GitHub)
+            echo "REPO_URL=$GH_URL" >> "$GITHUB_ENV"
+            ;;
+          CNB)
+            echo "REPO_URL=$CNB_URL" >> "$GITHUB_ENV"
+            ;;
+          Gitee)
+            echo "REPO_URL=$GITEE_URL" >> "$GITHUB_ENV"
+            ;;
+          *)
+            echo "Unknown platform: $PLATFORM" >&2
+            exit 1
+            ;;
+        esac
+          
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       run : |

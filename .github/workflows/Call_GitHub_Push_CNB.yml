@@ -19,9 +19,12 @@ jobs:
         run : |
           # ✅初始化数据
           sudo timedatectl set-timezone "Asia/Shanghai"
+          export LANG=en_US.UTF-8
+          export LC_ALL=en_US.UTF-8
           echo "cnb_repo=$(mktemp -d)" >> $GITHUB_ENV
           git config --global user.name "3wlh"
           git config --global user.email "3wlh@3wlh.cn"
+          git config --global core.quotepath false
 
       - name: Checkout
         uses: actions/checkout@main

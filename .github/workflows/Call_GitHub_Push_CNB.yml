@@ -25,6 +25,7 @@ jobs:
           git config --global user.email "3wlh@3wlh.cn"
 
       - name: Checkout
+        uses: actions/checkout@main
         with:
           repository: ${{ inputs.pull_repo }}
           token: ${{ secrets.TOKEN_GITHUB }}
@@ -46,9 +47,9 @@ jobs:
           git gc --prune=now --aggressive
       
       - name: Git Remove Files
+        uses: 3wlh/actions/git/remove-files@main
         env:
           url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.push_repo }}
-        uses: 3wlh/actions/git/remove-files@main
         with:
           repo_url: ${url}
           repo_path: ${{ env.cnb_repo }}

@@ -1,24 +1,20 @@
 name: Actions Remove Files
 on:
   repository_dispatch:
-  workflow_dispatch:      
+  workflow_dispatch:
     inputs:
       repos:
-        description: "Select the Repositories"
+        description: "选择要清理的仓库"
         required: false
-        default: "all"
         type: choice
         options:         
-          - 3wlh.github.io
-          - OpenWrt
-          - Script
-          - Yi_Source
-          - Source
-          - Actions-Build_ImmortalWrt
-          - OpenWrt_Packages
+          - "3wlh/OpenWrt_Packages"
+          - "3wlh/3wlh.github.io"
+          - "3wlh/Script"
+          
 
 env:
-  repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/3wlh/${{ inputs.repos }}
+  repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
 
 jobs:
   job:

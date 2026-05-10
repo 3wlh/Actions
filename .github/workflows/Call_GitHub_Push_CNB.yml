@@ -6,7 +6,7 @@ on:
       pull_repo:
         type: string
       push_repo:
-          type: string
+        type: string
         
 jobs:
   jod_Call:

@@ -27,8 +27,8 @@ on:
 env:
   github_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
   cnb_url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.repos }}
-  gitee_url: https://${{ secrets.TOKEN_GITEE }}@github.com/git_${{ inputs.repos }}
-             
+  gitee_url: https://${{ secrets.TOKEN_GITEE }}@gitee.com/git_${{ inputs.repos }}
+  
 jobs:
   job:
     name: Remove ${{ inputs.repos }} Commits

@@ -27,7 +27,7 @@ on:
 env:
   github_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
   cnb_url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.repos }}
-  gitee_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/git_${{ inputs.repos }}
+  gitee_url: https://${{ secrets.TOKEN_GITEE }}@github.com/git_${{ inputs.repos }}
              
 jobs:
   job:
@@ -66,10 +66,10 @@ jobs:
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}
       run : |
-        git clone ${{ env.repo_url }} $(pwd)
+        git clone ${{ env.REPO_URL }} $(pwd)
     
     - name: Git Remove Commits
       uses: 3wlh/actions/git/remove-commits@main
       with:
-        repo_url: ${{ env.repo_url }}
+        repo_url: ${{ env.REPO_URL }}
         repo_path: ${{ env.repo_dir }}

@@ -8,13 +8,12 @@ on:
         required: false
         type: choice
         options:        
-          - "3wlh/3wlh.github.io"
           - "3wlh/Script"
-          - "3wlh/Source"
+          - "3wlh/3wlh.github.io"
           - "3wlh/OpenWrt_Packages"
-          - "3wlh/Source_E"
           - "3wlh/Source"
-      
+          - "3wlh/Source_E"
+                
       platform:
         description: "要清理哪个平台的仓库"
         required: false

@@ -66,4 +66,5 @@ jobs:
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ github.token }}
-          keep_minimum_runs: 3
+          keep_minimum_runs: 0
+          use_daily_retention: true

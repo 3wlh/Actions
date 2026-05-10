@@ -6,7 +6,6 @@ on:
       repos:
         description: "要清理的仓库"
         required: false
-        default: "all"
         type: choice
         options:        
           - "3wlh/3wlh.github.io"
@@ -15,11 +14,24 @@ on:
           - "3wlh/OpenWrt_Packages"
           - "3wlh/Source_E"
           - "3wlh/Source"
+      
+      platform:
+        description: "要清理哪个平台的仓库"
+        required: false
+        type: choice
+        options:        
+          - "GitHub"
+          - "CNB"
+          - "Gitee"
 
 env:
-  #repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
-  repo_url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.repos }}
-  
+  github_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
+  cnb_url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.repos }}
+  gitee_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/git_${{ inputs.repos }}
+  repo_url: ${{ inputs.platform == 'GitHub' && env.github_url
+             || inputs.platform == 'CNB'   && env.cnb_url
+             || inputs.platform == 'Gitee' && env.gitee_url }}
+             
 jobs:
   job:
     name: Remove ${{ inputs.repos }} Commits
@@ -28,7 +40,9 @@ jobs:
     - name: init
       run : |
         # 初始化数据
-        echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV   
+        echo "repo_dir=$(mktemp -d)" >> $GITHUB_ENV
+        
+        
     
     - name: Git Clone Repositories
       working-directory: ${{ env.repo_dir }}

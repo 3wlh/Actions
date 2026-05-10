@@ -22,7 +22,7 @@ on:
 jobs:
   job_push:
     uses: 3wlh/Actions/.github/workflows/Call_GitHub_Push_CNB.yml@main
+    secrets: inherit
     with:
       pull_repo: ${{ inputs.pull_repo }}
       push_repo: ${{ inputs.push_repo }}
-    secrets: inherit

@@ -24,9 +24,9 @@ on:
           - "Gitee"
 
 env:
-  github_url: https://${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
+  github_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
   cnb_url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.repos }}
-  gitee_url: https://${{ secrets.TOKEN_GITEE }}@gitee.com/git_${{ inputs.repos }}
+  gitee_url: https://git_3wlh:${{ secrets.TOKEN_GITEE }}@gitee.com/git_${{ inputs.repos }}
   
 jobs:
   job:

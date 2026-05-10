@@ -4,22 +4,22 @@ on:
   workflow_dispatch:      
     inputs:
       repos:
-        description: "Select the Repositories"
+        description: "要清理的仓库"
         required: false
         default: "all"
         type: choice
         options:        
-          - 3wlh.github.io
-          - OpenWrt
-          - Script
-          - Yi_Source
-          - Source
-          - Actions-Build_ImmortalWrt
-          - OpenWrt_Packages
+          - "3wlh/3wlh.github.io"
+          - "3wlh/Script"
+          - "3wlh/Source"
+          - "3wlh/OpenWrt_Packages"
+          - "3wlh/Source_E"
+          - "3wlh/Source"
 
 env:
-  repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/3wlh/${{ inputs.repos }}
-
+  #repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
+  repo_url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.repos }}
+  
 jobs:
   job:
     name: Remove ${{ inputs.repos }} Commits

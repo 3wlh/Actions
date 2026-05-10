@@ -20,6 +20,7 @@ runs:
       run : |
         # 配置 Git 数据
         sudo timedatectl set-timezone "Asia/Shanghai"
+        git config --global core.quotepath false
         git config --global user.name "3wlh"
         git config --global user.email "3wlh@3wlh.cn"
     

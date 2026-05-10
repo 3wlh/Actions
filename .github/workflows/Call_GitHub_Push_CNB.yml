@@ -28,14 +28,22 @@ jobs:
         with:
           repository: ${{ inputs.pull_repo }}
           token: ${{ secrets.TOKEN_GITHUB }} 
-        
+      
+      - name: Git Clone Repositories
+        working-directory: ${{ env.cnb_repo }}
+        env:
+          url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.push_repo }}
+        run : |
+          # ✅克隆同步仓库
+          git clone ${url} $(pwd)
+      
       - name: Git Clone Repositories
         run : |
           # ✅复制文件
           rm -fr .git .github
           cp -r $(pwd)/* ${{ env.cnb_repo }}/
       
-      - name: Repository Remove Commits
+      - name: Repository Commits
         working-directory: ${{ env.cnb_repo }}
         run: |
           # ✅Git提交一次仓库

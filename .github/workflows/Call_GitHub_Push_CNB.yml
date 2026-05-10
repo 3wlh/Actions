@@ -44,6 +44,8 @@ jobs:
         run : |
           # ✅复制文件
           rm -fr .git .github
+          # 清理文件
+          git rm -rf . && git clean -fd
           cp -r $(pwd)/* ${{ env.cnb_repo }}/
       
       - name: Repository Commits

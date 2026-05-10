@@ -72,3 +72,11 @@ jobs:
       with:
         repo_url: ${{ env.REPO_URL }}
         repo_path: ${{ env.repo_dir }}
+        
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        token: ${{ github.token }}
+        keep_minimum_runs: 0
+        use_daily_retention: true
+        

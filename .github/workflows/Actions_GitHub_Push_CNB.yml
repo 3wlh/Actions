@@ -18,7 +18,7 @@ on:
         options:        
           - "3wlh/Source"
           - "3wlh/Source_E"
-          
+        
 jobs:
   job_push:
     uses: 3wlh/Actions/.github/workflows/Call_GitHub_Push_CNB.yml@main

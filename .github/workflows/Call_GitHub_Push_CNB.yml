@@ -50,5 +50,5 @@ jobs:
         env:
           url: https://cnb:${{ secrets.TOKEN_CNB }}@cnb.cool/${{ inputs.push_repo }}
         with:
-          repo_url: ${{ url }}
+          repo_url: ${url}
           repo_path: ${{ env.cnb_repo }}

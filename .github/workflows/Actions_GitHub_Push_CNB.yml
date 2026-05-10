@@ -1,15 +1,27 @@
 name: Actions GitHub Push CNB
 
 on:
-  #push:
-    #branches: [main]
-  #schedule:
-    #- cron: "0 16 * * 0"
-  workflow_dispatch:
-
+  workflow_dispatch:      
+    inputs:
+      pull_repo:
+        description: "要同步的仓库"
+        required: false
+        type: choice
+        options:        
+          - "3wlh/Source"
+          - "3wlh/Source_E"
+ 
+      push_repo:
+        description: "被同步的仓库"
+        required: false
+        type: choice
+        options:        
+          - "3wlh/Source"
+          - "3wlh/Source_E"
+          
 jobs:
   job_push:
     uses: 3wlh/Actions/.github/workflows/Call_GitHub_Push_CNB.yml@main
     with:
-      user: '3wlh'
-      repository: 'Source_E'
+      pull_repo: ${{ inputs.pull_repo }}
+      push_repo: ${{ inputs.push_repo }}

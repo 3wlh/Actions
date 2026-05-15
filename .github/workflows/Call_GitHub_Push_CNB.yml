@@ -47,15 +47,7 @@ jobs:
           # ✅复制文件
           rm -fr .git .github
           cp -r $(pwd)/* ${{ env.cnb_repo }}/
-      
-      - name: Repository Commits
-        working-directory: ${{ env.cnb_repo }}
-        run: |
-          # ✅Git提交一次仓库
-          git add -A >/dev/null 2>&1
-          git commit -m "${COMMIT_MESSAGE:-Reset commit history} - $(date +%Y-%m-%d\ %H:%M:%S)" || true
-          git gc --prune=now --aggressive
-      
+   
       - name: Git Remove Files
         uses: 3wlh/actions/git/remove-files@main
         env:

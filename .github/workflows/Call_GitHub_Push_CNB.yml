@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@main
         with:
           repository: ${{ inputs.pull_repo }}
-          token: ${{ secrets.TOKEN_GITHUB }} 
+          token: ${{ secrets.TOKEN_GITHUB || github.token }} 
       
       - name: Git Clone Repositories
         working-directory: ${{ env.cnb_repo }}

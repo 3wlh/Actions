@@ -39,13 +39,13 @@ jobs:
         run : |
           # ✅克隆同步仓库
           git clone ${url} $(pwd)
+          # ✅清理文件
+          git rm -rf . && git clean -fd
       
       - name: Git Clone Repositories
         run : |
           # ✅复制文件
           rm -fr .git .github
-          # 清理文件
-          git rm -rf . && git clean -fd
           cp -r $(pwd)/* ${{ env.cnb_repo }}/
       
       - name: Repository Commits

@@ -11,8 +11,9 @@ on:
           - "3wlh/OpenWrt_Packages"
           - "3wlh/3wlh.github.io"
           - "3wlh/Script"
+          - "3wlh/Source"
+          - "3wlh/Source_E"
           
-
 env:
   repo_url: https://3wlh:${{ secrets.TOKEN_GITHUB }}@github.com/${{ inputs.repos }}
 

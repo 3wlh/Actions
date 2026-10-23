@@ -13,6 +13,7 @@ on:
           - "3wlh/OpenWrt_Packages"
           - "3wlh/Source"
           - "3wlh/Source_E"
+          - "3wlh/NavPage"
                 
       platform:
         description: "要清理哪个平台的仓库"
